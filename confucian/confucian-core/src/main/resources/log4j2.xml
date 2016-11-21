@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration status="trace" monitorInterval="30" packages="confucian.log4j.support.log4jListener">
+
+    <appenders>
+        <!--输出控制台的配置-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!--控制台输出所有信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <Filters>
+                <ThresholdFilter level="TRACE"/>
+            </Filters>
+            <PatternLayout
+                    pattern="[%d{yyyy-MM-dd HH:mm:ss,SSS}] [%t] [%-level] [%F:%M:%L] - %msg%xEx%n"/>
+        </Console>
+
+        <RollingFile name="RollingFile-info"
+                     fileName="../target/Logs/info.log"
+                     filePattern="../target/Logs/info-%d{yyyy-MM-dd}-%i.log"
+                     append="true">
+            <Filters>
+                <ThresholdFilter level="info"/>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+
+            </Filters>
+            <PatternLayout
+                    pattern="[%d{yyyy-MM-dd HH:mm:ss,SSS}] [%t] [%-level] [%F:%M:%L] - %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="RollingFile-debug"
+                     fileName="../target/Logs/debug.log"
+                     filePattern="../target/Logs/debug-%d{yyyy-MM-dd}-%i.log"
+                     append="true">
+            <Filters>
+                <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout
+                    pattern="[%d{yyyy-MM-dd HH:mm:ss,SSS}] [%t] [%-level] [%F:%M:%L] - %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="RollingFile-Error"
+                     fileName="../target/Logs/Error.log"
+                     filePattern="../target/Logs/Error-%d{yyyy-MM-dd}-%i.log"
+                     append="true">
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout
+                    pattern="[%d{yyyy-MM-dd HH:mm:ss,SSS}] [%t] [%-level] [%F:%M:%L] - %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <Reporter name="Reporter">
+            <Filters>
+                <ThresholdFilter level="INFO"/>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] - %msg%xEx%n"/>
+        </Reporter>
+    </appenders>
+    <!--定义logger，只有定义了logger并引入的appender，appender才会生效-->
+    <loggers>
+        <!--建立一个默认的root的logger-->
+        <root level="trace">
+            <appender-ref ref="RollingFile-info"/>
+            <appender-ref ref="RollingFile-debug"/>
+            <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFile-Error"/>
+            <appender-ref ref="Reporter"/>
+        </root>
+    </loggers>
+</configuration>
