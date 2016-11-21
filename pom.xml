@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.at</groupId>
-    <artifactId>confucian</artifactId>
+    <artifactId>confucian-parent</artifactId>
     <packaging>pom</packaging>
-    <name>confucian</name>
+    <name>confucian-Parent</name>
     <version>1.0.0</version>
     <description>父项目</description>
 

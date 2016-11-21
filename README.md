@@ -1,6 +1,6 @@
-Selenium WebDriver
-UI Automation
-TestNG
+* Selenium WebDriver
+* UI Automation
+* TestNG
 
 特色
 -

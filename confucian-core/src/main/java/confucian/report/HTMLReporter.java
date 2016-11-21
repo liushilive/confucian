@@ -1,13 +1,28 @@
 package confucian.report;
 
 import org.apache.velocity.VelocityContext;
-import org.testng.*;
+import org.testng.IClass;
+import org.testng.IResultMap;
+import org.testng.ISuite;
+import org.testng.ISuiteResult;
+import org.testng.ITestNGMethod;
+import org.testng.ITestResult;
+import org.testng.Reporter;
 import org.testng.xml.XmlSuite;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * 使用Velocity模板生成其输出的TestNG的增强的HTML报告器

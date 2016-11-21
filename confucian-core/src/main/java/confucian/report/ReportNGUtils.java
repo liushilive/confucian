@@ -1,10 +1,24 @@
 package confucian.report;
 
-import org.testng.*;
+import org.testng.IInvokedMethod;
+import org.testng.ISuite;
+import org.testng.ISuiteResult;
+import org.testng.ITestContext;
+import org.testng.ITestNGMethod;
+import org.testng.ITestResult;
+import org.testng.Reporter;
+import org.testng.SkipException;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 实用程序类，提供可以从Velocity模板调用的各种帮助方法。 * @author Daniel Dyer
@@ -100,7 +114,7 @@ public class ReportNGUtils {
 
 
     /**
-     * Retieves the output from all calls to {@link org.testng.Reporter#log(String)}
+     * Retieves the output from all calls to {@link Reporter#log(String)}
      * across all tests.
      *
      * @return A (possibly empty) list of log messages.

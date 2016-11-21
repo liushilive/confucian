@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>org.at</groupId>
-        <artifactId>confucian</artifactId>
+        <artifactId>confucian-parent</artifactId>
         <version>1.0.0</version>
     </parent>
 
@@ -43,6 +43,10 @@
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
         </dependency>
     </dependencies>
 
