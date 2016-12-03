@@ -1,12 +1,13 @@
 package confucian.shutterbug;
 
-import confucian.exception.FrameworkException;
-import confucian.shutterbug.utils.Coordinates;
-import confucian.shutterbug.utils.ImageProcessor;
 import org.openqa.selenium.WebElement;
 
 import java.awt.*;
 import java.awt.image.RasterFormatException;
+
+import confucian.exception.FrameworkException;
+import confucian.shutterbug.utils.Coordinates;
+import confucian.shutterbug.utils.ImageProcessor;
 
 /**
  * 页面截图
@@ -58,12 +59,13 @@ public class PageSnapshot extends Snapshot {
      * and adding provided text above highlighted element.
      *
      * @param element WebElement to be highlighted with Color.red                and line width 3
-     * @param text    test to be places above highlighted element with             Color.red, font "Serif", BOLD, size 20
+     * @param text    test to be places above highlighted element with             Color.red, font
+     *                "Serif", BOLD, size 20
      * @return instance of type PageSnapshot
      */
     public PageSnapshot highlightWithText(WebElement element, String text) {
         try {
-            highlightWithText(element, Color.red, 3, text, Color.red, new Font("Serif", Font.BOLD, 20));
+            highlightWithText(element, Color.red, text, Color.red, new Font("Serif", Font.BOLD, 20));
         } catch (RasterFormatException rfe) {
             throw new FrameworkException(ELEMENT_OUT_OF_VIEWPORT_EX_MESSAGE, rfe);
         }
@@ -76,19 +78,18 @@ public class PageSnapshot extends Snapshot {
      *
      * @param element      WebElement to be highlighted
      * @param elementColor element highlight color
-     * @param lineWidth    line width around the element
      * @param text         text to be placed above the highlighted element
      * @param textColor    color of the text
      * @param textFont     text font
      * @return instance of type PageSnapshot
      */
-    public PageSnapshot highlightWithText(WebElement element, Color elementColor, int lineWidth, String text,
+    public PageSnapshot highlightWithText(WebElement element, Color elementColor, String text,
                                           Color textColor, Font textFont) {
         try {
             highlight(element, elementColor, 0);
-            Coordinates coords = new Coordinates(element);
+            Coordinates coord = new Coordinates(element);
             image = ImageProcessor
-                    .addText(image, coords.getX(), coords.getY() - textFont.getSize() / 2, text, textColor, textFont);
+                    .addText(image, coord.getX(), coord.getY() - textFont.getSize() / 2, text, textColor, textFont);
         } catch (RasterFormatException rfe) {
             throw new FrameworkException(ELEMENT_OUT_OF_VIEWPORT_EX_MESSAGE, rfe);
         }

@@ -1,6 +1,5 @@
 package confucian.driver;
 
-import confucian.data.driverConfig.IBrowserConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +17,8 @@ import org.openqa.selenium.support.events.EventFiringWebDriver;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
+
+import confucian.data.driverConfig.IBrowserConfig;
 
 /**
  * 返回的驱动实例的工厂类

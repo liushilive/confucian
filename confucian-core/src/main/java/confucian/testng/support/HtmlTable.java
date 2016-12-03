@@ -1,12 +1,13 @@
 package confucian.testng.support;
 
-import confucian.common.Arithmetic;
-import confucian.driver.Driver;
 import org.testng.asserts.IAssert;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import confucian.common.Arithmetic;
+import confucian.driver.Driver;
 
 /**
  * 创建或更新 HTML 报告

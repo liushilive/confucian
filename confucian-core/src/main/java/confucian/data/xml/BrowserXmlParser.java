@@ -2,27 +2,35 @@ package confucian.data.xml;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import confucian.common.Utils;
-import confucian.data.IMappingData;
-import confucian.data.driverConfig.IBrowserConfig;
-import confucian.data.driverConfig.PrepareDriverConfig;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import confucian.common.Utils;
+import confucian.data.IMappingData;
+import confucian.data.driverConfig.IBrowserConfig;
+import confucian.data.driverConfig.PrepareDriverConfig;
+
 /**
  * 返回{@link IBrowserConfig} 基于Xml文件的名称
  */
+@SuppressWarnings("ConstantConditions")
 public class BrowserXmlParser {
     private static final Map<String, List<IBrowserConfig>> xmlBrowserMap = Maps.newHashMap();
     private static final Logger LOGGER = LogManager.getLogger();
@@ -98,6 +106,7 @@ public class BrowserXmlParser {
      * @param xmlN xml文件名
      * @return ArrayList
      */
+    @SuppressWarnings("ConstantConditions")
     private List<HashMap<String, String>> readXml(String xmlN) {
 
         List<HashMap<String, String>> singleXMlList = Lists.newArrayList();

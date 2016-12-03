@@ -1,9 +1,10 @@
 package confucian.data.driverConfig;
 
 import com.google.common.collect.Maps;
-import confucian.data.DriverConfigurations;
 
 import java.util.Map;
+
+import confucian.data.DriverConfigurations;
 
 /**
  * 驱动配置

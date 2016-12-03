@@ -9,19 +9,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.ITestResult;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.imageio.ImageIO;
 
 /**
  * 通用辅助操作
@@ -134,10 +134,8 @@ public class Utils {
      * @return the double List
      */
     public static List<Double> getMoneyListFromString(String text) {
-//        text = text.replace(",", "");
         List<Double> list = Lists.newArrayList();
-        // Matcher matcher = Pattern.compile("((-)?(([1-9]\\d*)|([0]))(\\.(\\d){1,10})?)").matcher(text);
-        Matcher matcher = Pattern.compile("((-)?[1-9]\\d{0,10}){1}(,[0-9]{3})*(\\.?\\d+)?|((-)?[1-9]\\d*|0)(\\.\\d+)?")
+        Matcher matcher = Pattern.compile("((-)?[1-9]\\d{0,10})(,[0-9]{3})*(\\.?\\d+)?|((-)?[1-9]\\d*|0)(\\.\\d+)?")
                 .matcher(text);
 
         while (matcher.find()) {
@@ -159,25 +157,26 @@ public class Utils {
         String returnFilePath = null;
 
         try {
-            switch (OSName.get()) {
-                case UNIX:
-                    returnFilePath = Thread.currentThread().getContextClassLoader().getResource(fileName).getPath();
-                    break;
-                case WIN:
-                    returnFilePath =
-                            Thread.currentThread().getContextClassLoader().getResource(fileName).getPath().substring(1)
-                                    .replace("%20", " ");
-                    break;
-                case MAC:
-                    returnFilePath = Thread.currentThread().getContextClassLoader().getResource(fileName).getPath();
-                    break;
-                default:
-                    break;
-            }
-            returnFilePath = java.net.URLDecoder.decode(returnFilePath, "utf-8");
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("文件路径:" + returnFilePath);
-            }
+            URL resource = Thread.currentThread().getContextClassLoader().getResource(fileName);
+            if (resource != null)
+                switch (OSName.get()) {
+                    case UNIX:
+                        returnFilePath = resource.getPath();
+                        break;
+                    case WIN:
+                        returnFilePath =
+                                resource.getPath().substring(1)
+                                        .replace("%20", " ");
+                        break;
+                    case MAC:
+                        returnFilePath = resource.getPath();
+                        break;
+                    default:
+                        break;
+                }
+            if (returnFilePath != null)
+                returnFilePath = java.net.URLDecoder.decode(returnFilePath, "utf-8");
+            LOGGER.debug("文件路径:" + returnFilePath);
             return returnFilePath;
         } catch (NullPointerException | UnsupportedEncodingException e) {
             LOGGER.warn(Thread.currentThread().hashCode() + "---- 无法找到文件:" + fileName + "。 返回 null");
@@ -236,17 +235,41 @@ public class Utils {
     }
 
     /**
-     * 写图片
+     * 字符串切割,实现字符串自动换行
      *
-     * @param imageFile     the image file
-     * @param extension     the extension
-     * @param fileToWriteTo the file to write to
+     * @param text     the text
+     * @param maxWidth the max width
+     * @param ft       the ft
+     * @return the string [ ]
      */
-    public static void writeImage(BufferedImage imageFile, String extension, File fileToWriteTo) {
-        try {
-            ImageIO.write(imageFile, extension, fileToWriteTo);
-        } catch (IOException e) {
-            LOGGER.warn("写入图片失败", e);
+    public static List<String> format(String text, int maxWidth, Font ft) {
+        List<String> strings = Lists.newArrayList();
+        int width = maxWidth - ft.getSize() * 2;
+        BufferedImage combined = new BufferedImage(maxWidth, ft.getSize(),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = combined.createGraphics();
+        g.setFont(ft);
+        FontMetrics m = g.getFontMetrics();
+        if (m.stringWidth(text) < width) {
+            strings.add(text);
+            g.dispose();
+        } else {
+            int strWidth = 0;
+            int fromIndex = 0;
+            char[] chars = text.toCharArray();
+            for (int i = 0; i < text.length(); ) {
+                strWidth += m.charWidth(chars[i]);
+                if (chars[i] == '\n' || strWidth > width) {
+                    strings.add(text.substring(fromIndex, i));
+                    strWidth = 0;
+                    fromIndex = i;
+                }
+                i++;
+            }
+            if (fromIndex < text.length()) // 加上最后一行
+                strings.add(text.substring(fromIndex, text.length()));
+            g.dispose();
         }
+        return strings;
     }
 }

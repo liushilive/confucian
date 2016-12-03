@@ -186,7 +186,8 @@ public class ReportNGUtils {
      * Gets dependent groups.
      *
      * @param result the result
-     * @return A comma-separated string listing all dependent groups.  Returns an empty string it there are no dependent groups.
+     * @return A comma-separated string listing all dependent groups.  Returns an empty string it
+     * there are no dependent groups.
      */
     public String getDependentGroups(ITestResult result) {
         String[] groups = result.getMethod().getGroupsDependedUpon();
@@ -209,7 +210,8 @@ public class ReportNGUtils {
      * Gets dependent methods.
      *
      * @param result the result
-     * @return A comma-separated string listing all dependent methods.  Returns an empty string it there are no dependent methods.
+     * @return A comma-separated string listing all dependent methods.  Returns an empty string it
+     * there are no dependent methods.
      */
     public String getDependentMethods(ITestResult result) {
         String[] methods = result.getMethod().getMethodsDependedUpon();
@@ -300,8 +302,8 @@ public class ReportNGUtils {
      * replacing special characters with XML entities as required.
      *
      * @param character The character to convert.
-     * @return An XML entity representing the character (or a String containing
-     * just the character if it does not need to be escaped).
+     * @return An XML entity representing the character (or a String containing just the character
+     * if it does not need to be escaped).
      */
     private String escapeChar(char character) {
         switch (character) {

@@ -1,9 +1,9 @@
 package confucian.data;
 
+import java.io.File;
+
 import confucian.common.OSName;
 import confucian.common.OSName.OSN;
-
-import java.io.File;
 
 /**
  * 驱动程序配置
@@ -20,7 +20,7 @@ public class DriverConfigurations {
         remoteFlag("false"), /**
          * 全局超时
          */
-        driverTimeOut("30"), /**
+        driverTimeOut("5"), /**
          * 重试失败的测试用例
          */
         retryFailedTestCase("0"), /**

@@ -1,8 +1,5 @@
 package confucian.testng.support;
 
-import confucian.driver.Driver;
-import confucian.driver.DriverInitialization;
-import confucian.driver.DriverUtility;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.asserts.Assertion;
@@ -13,31 +10,25 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import confucian.driver.Driver;
+import confucian.driver.DriverInitialization;
+import confucian.driver.DriverUtility;
+
 /**
  * 断言类
  */
 public class SAssert extends Assertion {
     private static final Logger LOGGER = LogManager.getLogger();
-
     /**
      * The constant assertMap.
      */
     public static ThreadLocal<LinkedHashMap<IAssert, String>> assertMap =
-            new ThreadLocal<LinkedHashMap<IAssert, String>>() {
-                public LinkedHashMap<IAssert, String> initialValue() {
-                    return new LinkedHashMap<>();
-                }
-            };
-
+            ThreadLocal.withInitial(LinkedHashMap::new);
     /**
      * The constant m_errors.
      */
     public static ThreadLocal<LinkedHashMap<AssertionError, IAssert>> m_errors =
-            new ThreadLocal<LinkedHashMap<AssertionError, IAssert>>() {
-                public LinkedHashMap<AssertionError, IAssert> initialValue() {
-                    return new LinkedHashMap<>();
-                }
-            };
+            ThreadLocal.withInitial(LinkedHashMap::new);
 
     /**
      * 执行所有断言

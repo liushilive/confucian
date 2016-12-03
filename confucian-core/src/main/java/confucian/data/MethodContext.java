@@ -1,15 +1,7 @@
 package confucian.data;
 
 import com.google.common.collect.Maps;
-import confucian.common.Utils;
-import confucian.data.DataProvider.MapStrategy;
-import confucian.data.driverConfig.IBrowserConfig;
-import confucian.data.driverConfig.PrepareDriverConfig;
-import confucian.data.xml.BrowserXmlParser;
-import confucian.data.xml.MappingParserRevisit;
-import confucian.data.xml.XmlApplicationData;
-import confucian.exception.FrameworkException;
-import confucian.testng.support.RetryAnalyzer;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +13,16 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+
+import confucian.common.Utils;
+import confucian.data.DataProvider.MapStrategy;
+import confucian.data.driverConfig.IBrowserConfig;
+import confucian.data.driverConfig.PrepareDriverConfig;
+import confucian.data.xml.BrowserXmlParser;
+import confucian.data.xml.MappingParserRevisit;
+import confucian.data.xml.XmlApplicationData;
+import confucian.exception.FrameworkException;
+import confucian.testng.support.RetryAnalyzer;
 
 
 /**

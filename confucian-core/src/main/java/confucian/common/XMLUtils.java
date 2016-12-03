@@ -1,6 +1,5 @@
 package confucian.common;
 
-import confucian.exception.FrameworkException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +7,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,7 +22,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+
+import confucian.exception.FrameworkException;
 
 /**
  * XML公共操作方法
@@ -73,15 +79,19 @@ public class XMLUtils {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             File fd = new File(filePath);
             File fd2 = new File(fd.getParent());
-            if (!fd2.exists()) {
-                fd2.mkdirs();
+            boolean b = fd2.exists();
+            if (!b) {
+                b = fd2.mkdirs();
             }
-            PrintWriter pw = new PrintWriter(new FileOutputStream(filePath));
-            StreamResult result = new StreamResult(pw);
-            transformer.transform(source, result);
-            LOGGER.info("保存XML文件成功:" + filePath);
+            if (b) {
+                FileOutputStream outputStream = new FileOutputStream(filePath);
+                PrintWriter pw = new PrintWriter(outputStream);
+                StreamResult result = new StreamResult(pw);
+                transformer.transform(source, result);
+                LOGGER.info("保存XML文件成功:" + filePath);
+            }
         } catch (Exception e) {
-            LOGGER.error("保存XML文件失败:", e);
+            throw new FrameworkException("保存XML文件失败:", e);
         }
     }
 

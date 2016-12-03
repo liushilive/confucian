@@ -1,10 +1,18 @@
 package confucian.common;
 
 import com.google.common.collect.Lists;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoAlertPresentException;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.UnhandledAlertException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
@@ -33,7 +41,7 @@ public class ExpectedConditionExtended {
      */
     public static ExpectedCondition<WebElement> elementToBeClickable(final WebElement element) {
         return new ExpectedCondition<WebElement>() {
-            public ExpectedCondition<WebElement> visibilityOfElement = ExpectedConditions.visibilityOf(element);
+            ExpectedCondition<WebElement> visibilityOfElement = ExpectedConditions.visibilityOf(element);
 
             @Override
             public WebElement apply(WebDriver driver) {
@@ -44,10 +52,7 @@ public class ExpectedConditionExtended {
                     } else {
                         return null;
                     }
-                } catch (StaleElementReferenceException e) {
-                    LOGGER.warn(e);
-                    return null;
-                } catch (NoSuchElementException e) {
+                } catch (StaleElementReferenceException | NoSuchElementException e) {
                     LOGGER.warn(e);
                     return null;
                 }
@@ -148,11 +153,11 @@ public class ExpectedConditionExtended {
                         if (w != null && w.isDisplayed()) {
                             statusList.add(true);
                         } else {
-                            return null;
+                            return false;
                         }
                     } catch (StaleElementReferenceException e) {
                         LOGGER.warn(e);
-                        return null;
+                        return false;
                     }
                 }
                 return statusList.size() == elements.size();

@@ -1,8 +1,8 @@
 package confucian.data;
 
-import confucian.data.DataProvider.MapStrategy;
-
 import java.util.List;
+
+import confucian.data.DataProvider.MapStrategy;
 
 /**
  * 接口有测试数据，客户端环境列表，运行策略

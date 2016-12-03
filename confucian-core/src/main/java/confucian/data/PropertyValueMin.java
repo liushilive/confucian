@@ -2,6 +2,7 @@ package confucian.data;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -126,9 +127,7 @@ public class PropertyValueMin {
         sb.append("</script>");
 
         StringBuilder newSb = new StringBuilder();
-        for (String key : propertiesValue.keySet()) {
-            newSb.append(key).append(":").append(propertiesValue.get(key)).append("<br>");
-        }
+        propertiesValue.forEach((key, value) -> newSb.append(key).append(":").append(value).append("<br>"));
         sb.append("<a href='Data' onmouseover=\"javascript:change('").append(newSb.toString())
                 .append("')\" onmouseout=\"javascript:change('')\">数据</a>");
         sb.append("<div id='testData'></div>");

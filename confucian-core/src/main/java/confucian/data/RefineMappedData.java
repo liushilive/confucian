@@ -1,7 +1,5 @@
 package confucian.data;
 
-import confucian.common.Utils;
-import confucian.exception.FrameworkException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,11 +8,14 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+import confucian.common.Utils;
+import confucian.exception.FrameworkException;
+
 /**
  * 完善数据基于层次结构的方法 -- 类 -- 包，
  * 获取并返回 {@link IDataSource}
  */
-public class RefineMappedData {
+class RefineMappedData {
     private static final Logger LOGGER = LogManager.getLogger();
     private Map<String, IMappingData> primaryDataMap;
 
@@ -23,12 +24,10 @@ public class RefineMappedData {
      *
      * @param dataSource 数据源
      */
-    public RefineMappedData(IDataSource dataSource) {
+    RefineMappedData(IDataSource dataSource) {
         primaryDataMap = dataSource.getPrimaryData();
         // 主映射值
-        for (String s : primaryDataMap.keySet()) {
-            LOGGER.debug("主键:" + s + "值:" + primaryDataMap.get(s).getRunStrategy());
-        }
+        primaryDataMap.forEach((k, v) -> LOGGER.debug("主键:" + k + "值:" + v.getRunStrategy()));
     }
 
     /**
@@ -37,7 +36,7 @@ public class RefineMappedData {
      * @param methodName the method name
      * @return method data
      */
-    public IMappingData getMethodData(Method methodName) {
+    IMappingData getMethodData(Method methodName) {
         //System.out.println(getRefinedClientEnvironment(methodName).get(0));
         return new ImplementIMap.Builder().withTestData(getRefinedTestData(methodName))
                 .withClientEnvironment(getRefinedClientEnvironment(methodName))

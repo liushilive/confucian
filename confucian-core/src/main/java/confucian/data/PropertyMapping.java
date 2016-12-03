@@ -4,8 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import confucian.common.Utils;
-import confucian.exception.FrameworkException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +13,14 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import confucian.common.Utils;
+import confucian.exception.FrameworkException;
 
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -184,9 +190,7 @@ public class PropertyMapping implements IProperty {
     public String getValue(String key1, String... keys) {
         String key = key1;
         for (String k : keys) {
-            key = StringUtils.isBlank(key) ?
-                    k :
-                    key + "->" + k;
+            key = StringUtils.isBlank(key) ? k : key + "->" + k;
         }
         String value;
         try {

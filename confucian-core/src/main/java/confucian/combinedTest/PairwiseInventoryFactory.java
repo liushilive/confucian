@@ -4,6 +4,7 @@ package confucian.combinedTest;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,7 +62,7 @@ public class PairwiseInventoryFactory {
     private static ParameterSet<String> processOneLine(String line) {
         LOGGER.debug("处理行: {}", line);
         String[] lineTokens = line.split(":", 2);
-        List<String> strValues = splitAndTrim(",", lineTokens[1]);
+        List<String> strValues = splitAndTrim(lineTokens[1]);
         ParameterSet<String> parameterSet = new ParameterSet<>(strValues);
         parameterSet.setName(lineTokens[0]);
         return parameterSet;
@@ -70,12 +71,11 @@ public class PairwiseInventoryFactory {
     /**
      * 分割并去除空格
      *
-     * @param regex      分割符
      * @param lineTokens 行数据
      * @return 分割后数据列表
      */
-    private static List<String> splitAndTrim(String regex, String lineTokens) {
-        String[] rawTokens = lineTokens.split(regex);
+    private static List<String> splitAndTrim(String lineTokens) {
+        String[] rawTokens = lineTokens.split(",");
         String[] processedTokens = new String[rawTokens.length];
         for (int i = 0; i < rawTokens.length; i++) {
             processedTokens[i] = StringUtils.trim(rawTokens[i]);

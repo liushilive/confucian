@@ -1,15 +1,20 @@
 package confucian.testng.support;
 
 import com.google.common.collect.Lists;
-import confucian.common.Utils;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import confucian.common.Utils;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static confucian.common.Utils.getId;
@@ -78,13 +83,7 @@ public class TestInterceptor extends TestListenerAdapter {
         }
 
         // 更新上下文
-        for (Iterator<ITestResult> iterator = context.getFailedTests().getAllResults().iterator();
-             iterator.hasNext(); ) {
-            ITestResult testResult = iterator.next();
-            if (testsToBeRemoved.contains(testResult)) {
-                iterator.remove();
-            }
-        }
+        context.getFailedTests().getAllResults().removeIf(testsToBeRemoved::contains);
     }
 
     /**

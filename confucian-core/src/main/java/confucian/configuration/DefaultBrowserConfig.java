@@ -1,14 +1,16 @@
 package confucian.configuration;
 
 import com.google.common.collect.Maps;
-import confucian.data.DriverConfigurations;
-import confucian.data.IProperty;
-import confucian.data.driverConfig.IBrowserConfig;
-import confucian.data.driverConfig.PrepareDriverConfig;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
+
+import confucian.data.DriverConfigurations;
+import confucian.data.IProperty;
+import confucian.data.driverConfig.IBrowserConfig;
+import confucian.data.driverConfig.PrepareDriverConfig;
 
 /**
  * 从命令行或属性文件配置驱动程序所需的变量，

@@ -1,12 +1,13 @@
 package confucian.driver;
 
-import confucian.configuration.DefaultBrowserConfig;
-import confucian.data.driverConfig.IBrowserConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
+
+import confucian.configuration.DefaultBrowserConfig;
+import confucian.data.driverConfig.IBrowserConfig;
 
 /**
  * 驱动程序类，返回Web驱动程序特定的配置
@@ -38,15 +39,10 @@ public class Driver {
      * @return {@link WebDriver}
      */
     public static WebDriver getDriver() {
-        try {
-            if (driverRemovedStatus()) {
-                setDriverValue();
-            }
-            return driver.get();
-        } catch (Exception e) {
-            LOGGER.warn(e);
-            return null;
+        if (driverRemovedStatus()) {
+            setDriverValue();
         }
+        return driver.get();
     }
 
     /**
@@ -120,7 +116,7 @@ public class Driver {
     /**
      * 卸载当前驱动
      */
-    public static void tearDown() {
+    static void tearDown() {
         try {
             if (!driverRemovedStatus()) {
                 try {

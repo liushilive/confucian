@@ -44,7 +44,7 @@ class ParameterSet<T> {
      *
      * @return the parameter values
      */
-    public List<T> getParameterValues() {
+    List<T> getParameterValues() {
         return parameterValues;
     }
 }

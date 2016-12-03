@@ -2,10 +2,7 @@ package confucian.data;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import confucian.common.Utils;
-import confucian.data.driverConfig.IBrowserConfig;
-import confucian.exception.FrameworkException;
-import confucian.testng.support.MethodContextCollection;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,6 +10,11 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
+import confucian.common.Utils;
+import confucian.data.driverConfig.IBrowserConfig;
+import confucian.exception.FrameworkException;
+import confucian.testng.support.MethodContextCollection;
 
 /**
  * 为 @Test 方法提供数据

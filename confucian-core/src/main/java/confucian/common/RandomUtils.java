@@ -1,6 +1,7 @@
 package confucian.common;
 
 import com.google.common.collect.Lists;
+
 import org.apache.http.util.TextUtils;
 
 import java.util.Collections;
@@ -15,27 +16,27 @@ public class RandomUtils {
      * 制定字符串范围的因子：
      * 大写字母
      */
-    public static final String CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     /**
      * 制定字符串范围的因子：
      * 字母
      */
-    public static final String LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     /**
      * 制定字符串范围的因子：
      * 小写字母
      */
-    public static final String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
+    private static final String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
     /**
      * 制定字符串范围的因子：
      * 数字
      */
-    public static final String NUMBERS = "0123456789";
+    private static final String NUMBERS = "0123456789";
     /**
      * 制定字符串范围的因子：
      * 数字与字母
      */
-    public static final String NUMBERS_AND_LETTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String NUMBERS_AND_LETTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     /**
      * 获取随机布尔值.

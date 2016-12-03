@@ -3,7 +3,12 @@ package confucian.combinedTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * 测试用例集
@@ -228,11 +233,11 @@ public class TestDataSet {
         logFullCombinationCount();
         LOGGER.info("结果测试集: ");
         for (int i = 0; i < testSets.size(); i++) {
-            String outputStr = i + 1 + ": ";
+            StringBuffer outputStr = new StringBuffer(i + 1);
             int[] curr = testSets.get(i);
             for (int j = 0; j < scenario.getParameterSetCount(); j++) {
-                outputStr += scenario.getParameterSets().get(j).getName() + ":" +
-                        scenario.getParameterValues().get(curr[j]) + " ";
+                outputStr.append(scenario.getParameterSets().get(j).getName()).append(":")
+                        .append(scenario.getParameterValues().get(curr[j])).append(" ");
             }
             LOGGER.info(outputStr);
         }
@@ -241,7 +246,7 @@ public class TestDataSet {
     /**
      * 记录完全组合计数
      */
-    void logFullCombinationCount() {
+    private void logFullCombinationCount() {
         LOGGER.info("所有可能的组合: {}", inventory.getFullCombinationCount());
         LOGGER.info("最佳组合: {}", this.getRawTestSets().size());
     }

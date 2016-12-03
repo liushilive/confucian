@@ -9,7 +9,6 @@ import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
  * WebDriver事件
  */
 class WebDriverEventListener extends AbstractWebDriverEventListener {
-
     @Override
     public void beforeNavigateTo(String url, WebDriver driver) {
     }
@@ -17,7 +16,7 @@ class WebDriverEventListener extends AbstractWebDriverEventListener {
     @Override
     public void afterNavigateTo(String url, WebDriver driver) {
         if (driver != null)
-            DriverUtility.wait(100);
+            DriverUtility.wait(300);
     }
 
     @Override
@@ -27,7 +26,7 @@ class WebDriverEventListener extends AbstractWebDriverEventListener {
     @Override
     public void afterNavigateBack(WebDriver driver) {
         if (driver != null)
-            DriverUtility.wait(100);
+            DriverUtility.wait(300);
     }
 
     @Override
@@ -37,7 +36,7 @@ class WebDriverEventListener extends AbstractWebDriverEventListener {
     @Override
     public void afterNavigateForward(WebDriver driver) {
         if (driver != null)
-            DriverUtility.wait(100);
+            DriverUtility.wait(300);
     }
 
     @Override
@@ -47,7 +46,7 @@ class WebDriverEventListener extends AbstractWebDriverEventListener {
     @Override
     public void afterNavigateRefresh(WebDriver driver) {
         if (driver != null)
-            DriverUtility.wait(100);
+            DriverUtility.wait(300);
     }
 
     @Override
@@ -60,16 +59,17 @@ class WebDriverEventListener extends AbstractWebDriverEventListener {
 
     @Override
     public void beforeClickOn(WebElement element, WebDriver driver) {
+        DriverUtility.waitForLoad(element, 5, "");
     }
 
     @Override
     public void afterClickOn(WebElement element, WebDriver driver) {
-        if (driver != null)
-            DriverUtility.wait(100);
     }
 
     @Override
     public void beforeChangeValueOf(WebElement element, WebDriver driver, CharSequence[] keysToSend) {
+        if (driver != null)
+            DriverUtility.waitForLoad(element, 5, "");
     }
 
     @Override
@@ -89,6 +89,6 @@ class WebDriverEventListener extends AbstractWebDriverEventListener {
     @Override
     public void onException(Throwable throwable, WebDriver driver) {
         if (driver != null)
-            DriverUtility.wait(500);
+            DriverUtility.wait(1000);
     }
 }

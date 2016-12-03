@@ -1,16 +1,18 @@
 package confucian.testng.support;
 
 import com.google.common.collect.Maps;
-import confucian.common.Utils;
-import confucian.configuration.DefaultBrowserConfig;
-import confucian.data.driverConfig.IBrowserConfig;
-import confucian.driver.Driver;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 
 import java.util.Map;
+
+import confucian.common.Utils;
+import confucian.configuration.DefaultBrowserConfig;
+import confucian.data.driverConfig.IBrowserConfig;
+import confucian.driver.Driver;
 
 /**
  * 用于重新运行失败的测试用例

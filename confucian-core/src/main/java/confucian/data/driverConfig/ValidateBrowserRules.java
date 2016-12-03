@@ -1,15 +1,16 @@
 package confucian.data.driverConfig;
 
-import confucian.exception.FrameworkException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
+import confucian.exception.FrameworkException;
+
 /**
  * 验证浏览器规则
  */
-public class ValidateBrowserRules {
+class ValidateBrowserRules {
     private static final Logger LOGGER = LogManager.getLogger();
     /**
      * 浏览器配置

@@ -2,9 +2,7 @@ package confucian.data.xml;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import confucian.common.Utils;
-import confucian.data.IProperty;
-import confucian.data.PropertyMapping;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,14 +12,19 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import confucian.common.Utils;
+import confucian.data.IProperty;
+import confucian.data.PropertyMapping;
 
 /**
  * 传递测试数据xml返回{@link IProperty}列表
@@ -200,7 +203,8 @@ public class XmlApplicationData {
      */
     private List<Element> getDataObjects(String xmlName) {
         try {
-            document = builder.parse(new FileInputStream(Utils.getResources(xmlName)));
+            String resources = Utils.getResources(xmlName);
+            if (resources != null) document = builder.parse(new FileInputStream(resources));
         } catch (SAXException | IOException e) {
             LOGGER.error(e);
         }

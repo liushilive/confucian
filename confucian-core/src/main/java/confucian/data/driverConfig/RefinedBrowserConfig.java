@@ -1,7 +1,5 @@
 package confucian.data.driverConfig;
 
-import confucian.common.Utils;
-import confucian.data.PropertyValueMin;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +10,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
+
+import confucian.common.Utils;
+import confucian.data.PropertyValueMin;
 
 /**
  * 基于层次结构改进浏览器配置，优先级：
@@ -160,7 +161,8 @@ public class RefinedBrowserConfig {
         if (isFrameworkProperties) {
             Properties prop = new Properties();
             try {
-                prop.load(new FileInputStream(new File(Utils.getResources(fileName))));
+                String resources = Utils.getResources(fileName);
+                if (resources != null) prop.load(new FileInputStream(new File(resources)));
             } catch (IOException e) {
                 LOGGER.error(e);
             }

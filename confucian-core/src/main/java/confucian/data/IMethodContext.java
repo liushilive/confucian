@@ -1,9 +1,10 @@
 package confucian.data;
 
-import confucian.data.driverConfig.IBrowserConfig;
 import org.testng.IRetryAnalyzer;
 
 import java.util.List;
+
+import confucian.data.driverConfig.IBrowserConfig;
 
 /**
  * 接口方法上下文

@@ -1,9 +1,10 @@
 package confucian.shutterbug;
 
+import org.openqa.selenium.WebElement;
+
 import confucian.common.ScrollStrategy;
 import confucian.driver.DriverUtility;
 import confucian.shutterbug.utils.Browser;
-import org.openqa.selenium.WebElement;
 
 /**
  * 截图
@@ -18,20 +19,21 @@ public class Shutterbug {
     public static PageSnapshot shootPage(ScrollStrategy scroll) {
         Browser browser = new Browser();
         PageSnapshot pageScreenshot = new PageSnapshot();
-        switch (scroll) {
-            case HORIZONTALLY:
-                pageScreenshot.setImage(browser.takeScreenshotScrollHorizontally());
-                break;
-            case VERTICALLY:
-                pageScreenshot.setImage(browser.takeScreenshotScrollVertically());
-                break;
-            case BOTH_DIRECTIONS:
-                pageScreenshot.setImage(browser.takeScreenshotEntirePage());
-                break;
-            case DISABLE:
-                pageScreenshot.setImage(browser.takeScreenshot());
-                break;
-        }
+        if (scroll != null)
+            switch (scroll) {
+                case HORIZONTALLY:
+                    pageScreenshot.setImage(browser.takeScreenshotScrollHorizontally());
+                    break;
+                case VERTICALLY:
+                    pageScreenshot.setImage(browser.takeScreenshotScrollVertically());
+                    break;
+                case BOTH_DIRECTIONS:
+                    pageScreenshot.setImage(browser.takeScreenshotEntirePage());
+                    break;
+                case DISABLE:
+                    pageScreenshot.setImage(browser.takeScreenshot());
+                    break;
+            }
         return pageScreenshot;
     }
 
@@ -48,4 +50,6 @@ public class Shutterbug {
         elementSnapshot.setImage(browser.takeScreenshot(), browser.getBoundingClientRect(element));
         return elementSnapshot;
     }
+
+
 }

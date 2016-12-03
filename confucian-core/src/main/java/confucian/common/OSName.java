@@ -1,8 +1,9 @@
 package confucian.common;
 
-import confucian.exception.FrameworkException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import confucian.exception.FrameworkException;
 
 /**
  * 当前操作系统

@@ -1,10 +1,11 @@
 package confucian.configuration;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import confucian.data.IProperty;
 import confucian.data.PropertyMapping;
 import confucian.data.driverConfig.IBrowserConfig;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 /**

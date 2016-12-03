@@ -1,10 +1,15 @@
 package confucian.shutterbug.utils;
 
-import confucian.exception.FrameworkException;
-
 import java.awt.*;
 import java.awt.color.ColorSpace;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorConvertOp;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
+import java.util.List;
+
+import confucian.exception.FrameworkException;
 
 /**
  * 图像处理类
@@ -34,19 +39,19 @@ public class ImageProcessor {
      * Highlight buffered image.
      *
      * @param sourceImage the source image
-     * @param coords      the coords
+     * @param coordinates the coordinates
      * @param color       the color
      * @param lineWidth   the line width
      * @return the buffered image
      */
-    public static BufferedImage highlight(BufferedImage sourceImage, Coordinates coords, Color color, int lineWidth) {
+    public static BufferedImage highlight(BufferedImage sourceImage, Coordinates coordinates, Color color, int lineWidth) {
         byte defaultLineWidth = 3;
         Graphics2D g = sourceImage.createGraphics();
         g.setPaint(color);
         g.setStroke(new BasicStroke(lineWidth == 0 ?
                 defaultLineWidth :
                 lineWidth));
-        g.drawRoundRect(coords.getX(), coords.getY(), coords.getWidth(), coords.getHeight(), ARCH_SIZE, ARCH_SIZE);
+        g.drawRoundRect(coordinates.getX(), coordinates.getY(), coordinates.getWidth(), coordinates.getHeight(), ARCH_SIZE, ARCH_SIZE);
         g.dispose();
         return sourceImage;
     }
@@ -66,7 +71,7 @@ public class ImageProcessor {
         Graphics2D g = sourceImage.createGraphics();
         g.setPaint(color);
         g.setFont(font);
-        FontMetrics fm = g.getFontMetrics();
+        g.getFontMetrics();
         g.drawString(text, x, y);
         g.dispose();
         return sourceImage;
@@ -76,28 +81,28 @@ public class ImageProcessor {
      * Gets element.
      *
      * @param sourceImage the source image
-     * @param coords      the coords
+     * @param coordinates the coordinates
      * @return the element
      */
-    public static BufferedImage getElement(BufferedImage sourceImage, Coordinates coords) {
-        return sourceImage.getSubimage(coords.getX(), coords.getY(), coords.getWidth(), coords.getHeight());
+    public static BufferedImage getElement(BufferedImage sourceImage, Coordinates coordinates) {
+        return sourceImage.getSubimage(coordinates.getX(), coordinates.getY(), coordinates.getWidth(), coordinates.getHeight());
     }
 
     /**
      * Blur area buffered image.
      *
      * @param sourceImage the source image
-     * @param coords      the coords
+     * @param coordinates the coordinates
      * @return the buffered image
      */
-    public static BufferedImage blurArea(BufferedImage sourceImage, Coordinates coords) {
+    public static BufferedImage blurArea(BufferedImage sourceImage, Coordinates coordinates) {
         BufferedImage blurredImage =
-                blur(sourceImage.getSubimage(coords.getX(), coords.getY(), coords.getWidth(), coords.getHeight()));
+                blur(sourceImage.getSubimage(coordinates.getX(), coordinates.getY(), coordinates.getWidth(), coordinates.getHeight()));
         BufferedImage combined =
                 new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = combined.createGraphics();
         g.drawImage(sourceImage, 0, 0, null);
-        g.drawImage(blurredImage, coords.getX(), coords.getY(), null);
+        g.drawImage(blurredImage, coordinates.getX(), coordinates.getY(), null);
         g.dispose();
         return combined;
     }
@@ -106,17 +111,17 @@ public class ImageProcessor {
      * Monochrome area buffered image.
      *
      * @param sourceImage the source image
-     * @param coords      the coords
+     * @param coordinates the coordinates
      * @return the buffered image
      */
-    public static BufferedImage monochromeArea(BufferedImage sourceImage, Coordinates coords) {
-        BufferedImage monochromedImage = convertToGrayAndWhite(
-                sourceImage.getSubimage(coords.getX(), coords.getY(), coords.getWidth(), coords.getHeight()));
+    public static BufferedImage monochromeArea(BufferedImage sourceImage, Coordinates coordinates) {
+        BufferedImage monochromeImage = convertToGrayAndWhite(
+                sourceImage.getSubimage(coordinates.getX(), coordinates.getY(), coordinates.getWidth(), coordinates.getHeight()));
         BufferedImage combined =
                 new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = combined.createGraphics();
         g.drawImage(sourceImage, 0, 0, null);
-        g.drawImage(monochromedImage, coords.getX(), coords.getY(), null);
+        g.drawImage(monochromeImage, coordinates.getX(), coordinates.getY(), null);
         g.dispose();
         return combined;
     }
@@ -125,18 +130,18 @@ public class ImageProcessor {
      * Blur except area buffered image.
      *
      * @param sourceImage the source image
-     * @param coords      the coords
+     * @param coordinates the coordinates
      * @return the buffered image
      */
-    public static BufferedImage blurExceptArea(BufferedImage sourceImage, Coordinates coords) {
+    public static BufferedImage blurExceptArea(BufferedImage sourceImage, Coordinates coordinates) {
         BufferedImage subImage =
-                sourceImage.getSubimage(coords.getX(), coords.getY(), coords.getWidth(), coords.getHeight());
+                sourceImage.getSubimage(coordinates.getX(), coordinates.getY(), coordinates.getWidth(), coordinates.getHeight());
         BufferedImage blurredImage = blur(sourceImage);
         BufferedImage combined =
                 new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = combined.createGraphics();
         g.drawImage(blurredImage, 0, 0, null);
-        g.drawImage(subImage, coords.getX(), coords.getY(), null);
+        g.drawImage(subImage, coordinates.getX(), coordinates.getY(), null);
         g.dispose();
         return combined;
     }
@@ -151,15 +156,70 @@ public class ImageProcessor {
      * @return the buffered image
      */
     public static BufferedImage addTitle(BufferedImage sourceImage, String title, Color color, Font textFont) {
-        int textOffset = 5;
         BufferedImage combined = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight() + textFont.getSize(),
                 BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = combined.createGraphics();
-        g.drawImage(sourceImage, 0, textFont.getSize() + textOffset, null);
+        g.drawImage(sourceImage, 0, textFont.getSize() + 5, null);
         addText(combined, textFont.getSize(), textFont.getSize(), title, color, textFont);
         g.dispose();
         return combined;
     }
+
+//    /**
+//     * 纵向拼接图片
+//     *
+//     * @param image 图片组
+//     * @return the buffered image
+//     */
+//    public static BufferedImage joinImagesVertical(BufferedImage[] image) {
+//        int width = 0, height = 0;
+//        ArrayList<int[]> objects = Lists.newArrayList();
+//        for (BufferedImage bufferedImage : image) {
+//            int width1 = bufferedImage.getWidth();
+//            int height1 = bufferedImage.getHeight();
+//            width = width > width1 ? width : width1;
+//            height += height1 + 5;
+//            int[] imageArray = new int[width1 * height1];
+//            imageArray = bufferedImage.getRGB(0, 0, width1, height1, imageArray, 0, width1);
+//            objects.add(imageArray);
+//        }
+//
+//        //生成新图片
+//        int dst_height = 0;
+//        BufferedImage imageNew = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+//        for (int i = 0; i < objects.size(); i++) {
+//            int[] imageArray = objects.get(i);
+//            imageNew.setRGB(0, dst_height, width, image[i].getHeight(), imageArray, 0, width);//设置上半部分的RGB
+//            dst_height += image[i].getHeight() + 5;
+//        }
+//        return imageNew;
+//    }
+
+    /**
+     * 纵向拼接图片
+     *
+     * @param image 图片组
+     * @return the buffered image
+     */
+    public static BufferedImage joinImagesVertical(List<BufferedImage> image) {
+        int width = 0, height = 0;
+        for (BufferedImage bufferedImage : image) {
+            int width1 = bufferedImage.getWidth();
+            int height1 = bufferedImage.getHeight();
+            width = width > width1 ? width : width1;
+            height += height1 + 5;
+        }
+        BufferedImage combinedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        //生成新图片
+        int dst_height = 0;
+        Graphics2D g = combinedImage.createGraphics();
+        for (BufferedImage anImage : image) {
+            g.drawImage(anImage, 0, dst_height, null);
+            dst_height += anImage.getHeight() + 5;
+        }
+        return combinedImage;
+    }
+
 
     /**
      * Convert to gray and white buffered image.
@@ -233,7 +293,6 @@ public class ImageProcessor {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration gc = gd.getDefaultConfiguration();
-        BufferedImage image = gc.createCompatibleImage(w, h);
-        return image;
+        return gc.createCompatibleImage(w, h);
     }
 }

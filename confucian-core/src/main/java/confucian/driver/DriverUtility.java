@@ -1,15 +1,21 @@
 package confucian.driver;
 
-import confucian.common.ExpectedConditionExtended;
-import confucian.common.ScrollStrategy;
-import confucian.common.Utils;
-import confucian.exception.FrameworkException;
-import confucian.shutterbug.Shutterbug;
-import confucian.shutterbug.Snapshot;
+import com.google.common.collect.Lists;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.*;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.NoSuchFrameException;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.UnexpectedAlertBehaviour;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -24,6 +30,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import confucian.common.ExpectedConditionExtended;
+import confucian.common.ScrollStrategy;
+import confucian.common.Utils;
+import confucian.exception.FrameworkException;
+import confucian.shutterbug.Shutterbug;
+import confucian.shutterbug.Snapshot;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static confucian.driver.Driver.getDriver;
@@ -40,7 +54,7 @@ public class DriverUtility {
      *
      * @param acceptOrDismiss accept：接受<p>dismiss:驳回
      */
-    public static void acceptOrDismissAlert(ACCEPT_DISMISS acceptOrDismiss) {
+    public static void acceptOrDismissAlert(UnexpectedAlertBehaviour acceptOrDismiss) {
         Alert alert = getDriver().switchTo().alert();
         switch (acceptOrDismiss) {
             case ACCEPT:
@@ -48,6 +62,8 @@ public class DriverUtility {
                 break;
             case DISMISS:
                 alert.dismiss();
+                break;
+            case IGNORE:
                 break;
         }
     }
@@ -60,6 +76,21 @@ public class DriverUtility {
      */
     public static void checkUncheckedCheckBox(WebElement webElement, CHECK_UNCHECKED checkUnCheck) {
         boolean checked = webElement.isSelected();
+        checkUnChecked(webElement, checkUnCheck, checked);
+    }
+
+    /**
+     * 复选框状态改变，元素应该是可见的，非正规复选框，class中以cur标志判断。
+     *
+     * @param webElement   复选框元素
+     * @param checkUnCheck {@link CHECK_UNCHECKED} 枚举
+     */
+    public static void checkUncheckedCheckBox_cur(WebElement webElement, CHECK_UNCHECKED checkUnCheck) {
+        boolean checked = webElement.getAttribute("class").contains("cur");
+        checkUnChecked(webElement, checkUnCheck, checked);
+    }
+
+    private static void checkUnChecked(WebElement webElement, CHECK_UNCHECKED checkUnCheck, boolean checked) {
         if (checked) {
             if (checkUnCheck.toString().equalsIgnoreCase(CHECK_UNCHECKED.UNCHECKED.toString())) {
                 webElement.click();
@@ -138,6 +169,7 @@ public class DriverUtility {
                 getDriver().manage().timeouts()
                         .implicitlyWait(Driver.getBrowserConfig().getDriverTimeOut(), TimeUnit.SECONDS);
             } catch (Exception ignored) {
+                // 忽略
             }
         }
     }
@@ -269,12 +301,10 @@ public class DriverUtility {
      * @return 存在返回message ，不存在返回null
      */
     public static String isAlert(int time) {
-        try {
-            return waitFor(ExpectedConditions.alertIsPresent(), time, "Alert").getText();
-        } catch (NullPointerException Ex) {
-            LOGGER.warn(Ex);
+        Alert alert = waitFor(ExpectedConditions.alertIsPresent(), time, "Alert");
+        if (alert == null)
             return null;
-        }
+        return alert.getText();
     }
 
     /**
@@ -412,7 +442,8 @@ public class DriverUtility {
             s.selectByVisibleText(visibleText);
         } catch (NoSuchElementException e) {
             LOGGER.warn(e);
-            s.selectByIndex(defaultIndex);
+            if (s != null)
+                s.selectByIndex(defaultIndex);
         }
     }
 
@@ -461,6 +492,10 @@ public class DriverUtility {
         }
     }
 
+    public static String getTitle() {
+        return Driver.getDriver().getTitle();
+    }
+
     /**
      * Switch to default frame boolean.
      */
@@ -501,7 +536,7 @@ public class DriverUtility {
         String selectLinkOpenInNewTab = Keys.chord(Keys.CONTROL, "t");
         waitForLoad();
         for (String s : getDriver().getWindowHandles()) {
-            if (getDriver().switchTo().window(s).getTitle() == "") {
+            if (getDriver().switchTo().window(s).getTitle().equals("")) {
                 return true;
             }
         }
@@ -515,7 +550,9 @@ public class DriverUtility {
      * @return the boolean
      */
     public static boolean switchToWindow_Next() {
+        waitForLoad();
         String currentHandle = getDriver().getWindowHandle();
+        waitForLoad();
         Set<String> handles = getDriver().getWindowHandles();
         handles.remove(currentHandle);
         if (!handles.isEmpty()) {
@@ -641,18 +678,29 @@ public class DriverUtility {
         File saved = new File(path);
         try {
             if (getDriver() != null) {
-                String alert = isAlert();
-                if (alert != null)
-                    acceptOrDismissAlert(ACCEPT_DISMISS.ACCEPT);
-                Snapshot snapshot =
-                        Shutterbug.shootPage(ScrollStrategy.BOTH_DIRECTIONS).withTitle(LocalDateTime.now().toString());
-                if (alert != null)
-                    snapshot.withTitle("Alert: " + alert);
-                for (String title : titles) {
-                    snapshot = snapshot.withTitle(title);
+                List<Snapshot> snapshotList = Lists.newArrayList();
+                String handle_now = getDriver().getWindowHandle();
+                Set<String> windowHandles = getDriver().getWindowHandles();
+                for (String handle : windowHandles) {
+                    String alert = isAlert();
+                    if (alert != null) acceptOrDismissAlert(UnexpectedAlertBehaviour.ACCEPT);
+                    if (!getDriver().getWindowHandle().equals(handle)) {
+                        getDriver().switchTo().window(handle);
+                    }
+                    Snapshot snapshot = Shutterbug.shootPage(ScrollStrategy.BOTH_DIRECTIONS)
+                            .withHead("URL：" + getURL()).withHead("Title：" + getTitle());
+                    if (alert != null) snapshot.withHead("Alert: " + alert);
+                    snapshotList.add(snapshot);
                 }
+                if (!handle_now.equals(getDriver().getCurrentUrl()))
+                    getDriver().switchTo().window(handle_now);
+                Snapshot snapshot = Shutterbug.shootPage(null);
+                snapshot.joinImagesVertical(snapshotList.stream().map(Snapshot::getImage)
+                        .collect(Collectors.toList()));
+                snapshot.withTitle(LocalDateTime.now().toString());
+                for (String title : titles) snapshot = snapshot.withTitle(title);
                 snapshot.withName(imageName).save(path);
-                LOGGER.debug("截图保存：" + path + imageName);
+                LOGGER.debug("截图保存：" + path + imageName + ".png");
             } else {
                 LOGGER.warn("浏览器驱动为空，无法屏幕截图");
             }
@@ -696,15 +744,15 @@ public class DriverUtility {
     }
 
     /**
-     * 等待
+     * 硬性等待
      *
-     * @param milis 毫秒
+     * @param millis 毫秒
      */
-    public static void wait(int milis) {
+    public static void wait(int millis) {
         try {
-            Thread.sleep(milis);
+            TimeUnit.MILLISECONDS.sleep(millis);
         } catch (InterruptedException e) {
-            throw new FrameworkException(e);
+            e.printStackTrace();
         }
     }
 
@@ -736,27 +784,14 @@ public class DriverUtility {
     }
 
     /**
-     * 枚举 接受 or 驳回
-     */
-    public enum ACCEPT_DISMISS {
-        /**
-         * 接受
-         */
-        ACCEPT, /**
-         * 驳回
-         */
-        DISMISS
-
-    }
-
-    /**
      * 枚举选择状态
      */
     public enum CHECK_UNCHECKED {
         /**
          * 选择
          */
-        CHECK, /**
+        CHECK,
+        /**
          * 不选择
          */
         UNCHECKED
@@ -769,7 +804,8 @@ public class DriverUtility {
         /**
          * 使用JS
          */
-        USING_JS, /**
+        USING_JS,
+        /**
          * 使用自定义方法
          */
         USING_ACTION

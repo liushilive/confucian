@@ -18,12 +18,14 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ResourceBundle;
 
+import confucian.exception.FrameworkException;
+
 /**
  * Report记录器基类。 提供通用功能。
  */
-public abstract class AbstractReporter implements IReporter {
-    protected static final String TEMPLATE_EXTENSION = ".vm";
-    protected static final ReportMetadata META = new ReportMetadata();
+abstract class AbstractReporter implements IReporter {
+    static final String TEMPLATE_EXTENSION = ".vm";
+    static final ReportMetadata META = new ReportMetadata();
     private static final String ENCODING = "UTF-8";
     private static final String META_KEY = "meta";
     private static final String UTILS_KEY = "utils";
@@ -37,7 +39,7 @@ public abstract class AbstractReporter implements IReporter {
     /**
      * @param classpathPrefix 从类路径加载模板
      */
-    protected AbstractReporter(String classpathPrefix) {
+    AbstractReporter(String classpathPrefix) {
         this.classpathPrefix = classpathPrefix;
         Velocity.setProperty("resource.loader", "classpath");
         Velocity.setProperty("classpath.resource.loader.class",
@@ -49,7 +51,7 @@ public abstract class AbstractReporter implements IReporter {
         try {
             Velocity.init();
         } catch (Exception ex) {
-            throw new ReportNGException("无法初始化Velocity.", ex);
+            throw new FrameworkException("无法初始化Velocity.", ex);
         }
     }
 
@@ -60,7 +62,7 @@ public abstract class AbstractReporter implements IReporter {
      *
      * @return An initialised Velocity context.
      */
-    protected VelocityContext createContext() {
+    VelocityContext createContext() {
         VelocityContext context = new VelocityContext();
         context.put(META_KEY, META);
         context.put(UTILS_KEY, UTILS);
@@ -73,13 +75,10 @@ public abstract class AbstractReporter implements IReporter {
      * Generate the specified output file by merging the specified
      * Velocity template with the supplied context.
      */
-    protected void generateFile(File file, String templateName, VelocityContext context) throws Exception {
-        Writer writer = new BufferedWriter(new FileWriter(file));
-        try {
+    void generateFile(File file, String templateName, VelocityContext context) throws Exception {
+        try (Writer writer = new BufferedWriter(new FileWriter(file))) {
             Velocity.mergeTemplate(classpathPrefix + templateName, ENCODING, context, writer);
             writer.flush();
-        } finally {
-            writer.close();
         }
     }
 
@@ -92,7 +91,7 @@ public abstract class AbstractReporter implements IReporter {
      * @param targetFileName  The name of the file created in {@literal outputDirectory}.
      * @throws IOException If the resource cannot be copied.
      */
-    protected void copyClasspathResource(File outputDirectory, String resourceName, String targetFileName)
+    void copyClasspathResource(File outputDirectory, String resourceName, String targetFileName)
             throws IOException {
         String resourcePath = classpathPrefix + resourceName;
         InputStream resourceStream = getClass().getClassLoader().getResourceAsStream(resourcePath);
@@ -108,12 +107,9 @@ public abstract class AbstractReporter implements IReporter {
      * @param targetFileName  The name of the file created in {@literal outputDirectory}.
      * @throws IOException If the file cannot be copied.
      */
-    protected void copyFile(File outputDirectory, File sourceFile, String targetFileName) throws IOException {
-        InputStream fileStream = new FileInputStream(sourceFile);
-        try {
+    void copyFile(File outputDirectory, File sourceFile, String targetFileName) throws IOException {
+        try (InputStream fileStream = new FileInputStream(sourceFile)) {
             copyStream(outputDirectory, fileStream, targetFileName);
-        } finally {
-            fileStream.close();
         }
     }
 
@@ -126,7 +122,7 @@ public abstract class AbstractReporter implements IReporter {
      * @param targetFileName  The file to write the stream contents to.
      * @throws IOException If the stream cannot be copied.
      */
-    protected void copyStream(File outputDirectory, InputStream stream, String targetFileName) throws IOException {
+    void copyStream(File outputDirectory, InputStream stream, String targetFileName) throws IOException {
         File resourceFile = new File(outputDirectory, targetFileName);
         BufferedReader reader = null;
         Writer writer = null;
@@ -161,11 +157,9 @@ public abstract class AbstractReporter implements IReporter {
      *
      * @param outputDirectory The directory to search for empty directories.
      */
-    protected void removeEmptyDirectories(File outputDirectory) {
+    void removeEmptyDirectories(File outputDirectory) {
         if (outputDirectory.exists()) {
-            for (File file : outputDirectory.listFiles(new EmptyDirectoryFilter())) {
-                file.delete();
-            }
+            for (File file : outputDirectory.listFiles(new EmptyDirectoryFilter())) file.delete();
         }
     }
 

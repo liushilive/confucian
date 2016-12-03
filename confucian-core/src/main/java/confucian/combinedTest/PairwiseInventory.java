@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 术语:
@@ -236,8 +237,8 @@ class PairwiseInventory implements IInventory {
      */
     private void logUnusedMolecules(List<Molecule> unusedMolecules) {
         final String[] unusedPairsStr = {"未使用的分子: "};
-        unusedMolecules.stream().filter(molecule -> null != molecule).
-                forEachOrdered(molecule -> unusedPairsStr[0] += (molecule + ","));
+        unusedMolecules.stream().filter(Objects::nonNull)
+                .forEachOrdered(molecule -> unusedPairsStr[0] += (molecule + ","));
         unusedPairsStr[0] = unusedPairsStr[0].substring(0, unusedPairsStr[0].length() - 1);
         LOGGER.debug(unusedPairsStr[0]);
     }

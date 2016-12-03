@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="$messages.locale.language" lang="$messages.locale.language">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="$messages.locale.language"
+      lang="$messages.locale.language">
 <head>
     <title>$meta.reportTitle - $suite.name - $messages.getString("groups")</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>

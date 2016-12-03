@@ -2,17 +2,29 @@ package confucian.mail;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Reporter;
 
-import javax.mail.*;
-import javax.mail.Message.RecipientType;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
+import javax.mail.Address;
+import javax.mail.Authenticator;
+import javax.mail.BodyPart;
+import javax.mail.Flags;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.Message.RecipientType;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Store;
 
 /**
  * 电子邮件
@@ -196,9 +208,7 @@ public class Email implements IEmail {
                 messageBody.append(content);
             }
             folder.close(true);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (MessagingException | IOException e) {
             e.printStackTrace();
         }
         return messageBody.toString();

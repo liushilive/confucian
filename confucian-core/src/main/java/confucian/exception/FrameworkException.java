@@ -40,5 +40,4 @@ public class FrameworkException extends RuntimeException {
         super(e);
         LOGGER.error(e);
     }
-
 }

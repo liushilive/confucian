@@ -7,7 +7,12 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.plugins.*;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAliases;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginConfiguration;
+import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.Required;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.testng.Reporter;
@@ -16,7 +21,7 @@ import java.io.Serializable;
 
 @Plugin(name = ReporterAppender.PLUGIN_NAME, category = "Core", elementType = Appender.ELEMENT_TYPE, printObject = true)
 public class ReporterAppender extends AbstractAppender {
-    public static final String PLUGIN_NAME = "Reporter";
+    static final String PLUGIN_NAME = "Reporter";
 
     private ReporterAppender(final String name, final Filter filter, final Layout layout) {
         super(name, filter, layout, false);

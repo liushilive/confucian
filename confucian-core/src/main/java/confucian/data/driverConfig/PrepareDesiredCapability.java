@@ -1,6 +1,7 @@
 package confucian.data.driverConfig;
 
 import com.google.common.collect.Maps;
+
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.remote.DesiredCapabilities;
 

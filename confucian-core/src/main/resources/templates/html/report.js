@@ -7,6 +7,7 @@ function toggleElement(elementId, displayStyle) {
 }
 
 function toggle(toggleId) {
-    var toggle = document.getElementById ? document.getElementById(toggleId) : document.all[toggleId];
+    var toggle = document.getElementById ? document.getElementById(toggleId)
+        : document.all[toggleId];
     toggle.textContent = toggle.innerHTML == '\u25b6' ? '\u25bc' : '\u25b6';
 }

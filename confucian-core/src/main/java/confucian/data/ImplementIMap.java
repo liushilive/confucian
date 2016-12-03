@@ -1,8 +1,8 @@
 package confucian.data;
 
-import confucian.data.DataProvider.MapStrategy;
-
 import java.util.List;
+
+import confucian.data.DataProvider.MapStrategy;
 
 /**
  * 构建数据类，实现接口 {@link IMappingData}

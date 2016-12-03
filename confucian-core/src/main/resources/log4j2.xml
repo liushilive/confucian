@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<configuration status="trace" monitorInterval="30" packages="confucian.log4j.support.log4jListener">
+<configuration status="trace" monitorInterval="30"
+               packages="confucian.log4j.support.ReporterAppender">
 
     <appenders>
         <!--输出控制台的配置-->

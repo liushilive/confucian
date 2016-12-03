@@ -1,18 +1,22 @@
 package confucian.shutterbug.utils;
 
-import confucian.driver.Driver;
-import confucian.driver.DriverUtility;
-import confucian.exception.FrameworkException;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.*;
+import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Point;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebElement;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+
+import confucian.driver.Driver;
+import confucian.driver.DriverUtility;
+import confucian.exception.FrameworkException;
 
 import static confucian.driver.DriverUtility.executeJsScriptOfFile;
 
@@ -24,35 +28,35 @@ public class Browser {
     /**
      * The constant RELATIVE_COORDS_JS.
      */
-    public static final String RELATIVE_COORDS_JS = "js/relative-element-coords.js";
+    private static final String RELATIVE_COORDS_JS = "js/relative-element-coords.js";
     /**
      * The constant MAX_DOC_WIDTH_JS.
      */
-    public static final String MAX_DOC_WIDTH_JS = "js/max-document-width.js";
+    private static final String MAX_DOC_WIDTH_JS = "js/max-document-width.js";
     /**
      * The constant MAX_DOC_HEIGHT_JS.
      */
-    public static final String MAX_DOC_HEIGHT_JS = "js/max-document-height.js";
+    private static final String MAX_DOC_HEIGHT_JS = "js/max-document-height.js";
     /**
      * The constant VIEWPORT_HEIGHT_JS.
      */
-    public static final String VIEWPORT_HEIGHT_JS = "js/viewport-height.js";
+    private static final String VIEWPORT_HEIGHT_JS = "js/viewport-height.js";
     /**
      * The constant VIEWPORT_WIDTH_JS.
      */
-    public static final String VIEWPORT_WIDTH_JS = "js/viewport-width.js";
+    private static final String VIEWPORT_WIDTH_JS = "js/viewport-width.js";
     /**
      * The constant SCROLL_TO_JS.
      */
-    public static final String SCROLL_TO_JS = "js/scroll-to.js";
+    private static final String SCROLL_TO_JS = "js/scroll-to.js";
     /**
      * The constant CURRENT_SCROLL_Y_JS.
      */
-    public static final String CURRENT_SCROLL_Y_JS = "js/get-current-scrollY.js";
+    private static final String CURRENT_SCROLL_Y_JS = "js/get-current-scrollY.js";
     /**
      * The constant CURRENT_SCROLL_X_JS.
      */
-    public static final String CURRENT_SCROLL_X_JS = "js/get-current-scrollX.js";
+    private static final String CURRENT_SCROLL_X_JS = "js/get-current-scrollX.js";
 
     private int docHeight = Driver.getDriver() == null ?
             -1 :
@@ -60,8 +64,6 @@ public class Browser {
     private int docWidth = Driver.getDriver() == null ?
             -1 :
             Driver.getDriver().manage().window().getSize().getWidth();
-    private int viewportWidth = -1;
-    private int viewportHeight = -1;
 
     /**
      * 实例化一个新的浏览器
@@ -159,7 +161,7 @@ public class Browser {
      *
      * @return 当前滚动X位置
      */
-    public int getCurrentScrollX() {
+    private int getCurrentScrollX() {
         return ((Long) DriverUtility.executeJsScriptOfFile(Browser.CURRENT_SCROLL_X_JS)).intValue();
     }
 
@@ -168,7 +170,7 @@ public class Browser {
      *
      * @return 当前滚动y位置
      */
-    public int getCurrentScrollY() {
+    private int getCurrentScrollY() {
         return ((Long) executeJsScriptOfFile(Browser.CURRENT_SCROLL_Y_JS)).intValue();
     }
 
@@ -177,7 +179,7 @@ public class Browser {
      *
      * @return 页面宽度
      */
-    public int getDocWidth() {
+    private int getDocWidth() {
         Object o = executeJsScriptOfFile(MAX_DOC_WIDTH_JS);
         if (o != null) {
             return Math.max(((Long) o).intValue(), docWidth);
@@ -190,7 +192,7 @@ public class Browser {
      *
      * @return 页面高度
      */
-    public int getDocHeight() {
+    private int getDocHeight() {
         Object value = executeJsScriptOfFile(MAX_DOC_HEIGHT_JS);
         if (value != null) {
             return Math.max(docHeight, ((Long) value).intValue());
@@ -203,10 +205,8 @@ public class Browser {
      *
      * @return 窗口的宽度
      */
-    public int getViewportWidth() {
-        return viewportWidth != -1 ?
-                viewportWidth :
-                ((Long) executeJsScriptOfFile(VIEWPORT_WIDTH_JS)).intValue();
+    private int getViewportWidth() {
+        return ((Long) executeJsScriptOfFile(VIEWPORT_WIDTH_JS)).intValue();
     }
 
     /**
@@ -214,10 +214,8 @@ public class Browser {
      *
      * @return 窗口高度
      */
-    public int getViewportHeight() {
-        return viewportHeight != -1 ?
-                viewportHeight :
-                ((Long) executeJsScriptOfFile(VIEWPORT_HEIGHT_JS)).intValue();
+    private int getViewportHeight() {
+        return ((Long) executeJsScriptOfFile(VIEWPORT_HEIGHT_JS)).intValue();
     }
 
     /**
@@ -239,7 +237,7 @@ public class Browser {
      * @param x the x
      * @param y the y
      */
-    public void scrollTo(int x, int y) {
+    private void scrollTo(int x, int y) {
         executeJsScriptOfFile(SCROLL_TO_JS, x, y);
     }
 }

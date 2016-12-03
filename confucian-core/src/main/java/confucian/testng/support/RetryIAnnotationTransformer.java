@@ -1,11 +1,7 @@
 package confucian.testng.support;
 
 import com.google.common.collect.Maps;
-import confucian.common.Utils;
-import confucian.data.IProperty;
-import confucian.data.MethodContext;
-import confucian.data.driverConfig.IBrowserConfig;
-import confucian.exception.FrameworkException;
+
 import org.testng.IAnnotationTransformer2;
 import org.testng.annotations.IConfigurationAnnotation;
 import org.testng.annotations.IDataProviderAnnotation;
@@ -15,6 +11,12 @@ import org.testng.annotations.ITestAnnotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
+
+import confucian.common.Utils;
+import confucian.data.IProperty;
+import confucian.data.MethodContext;
+import confucian.data.driverConfig.IBrowserConfig;
+import confucian.exception.FrameworkException;
 
 /**
  * 为追加重试注解关于全部测试用例和创建映射有@AfterMethod和@BeforeMethod的类

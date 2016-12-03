@@ -1,7 +1,8 @@
 package confucian.mail;
 
-import javax.mail.Message;
 import java.util.List;
+
+import javax.mail.Message;
 
 /**
  * 电子邮件接口

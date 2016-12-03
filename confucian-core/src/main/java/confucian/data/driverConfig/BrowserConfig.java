@@ -1,9 +1,10 @@
 package confucian.data.driverConfig;
 
-import confucian.data.DriverConfigurations;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.Map;
+
+import confucian.data.DriverConfigurations;
 
 /**
  * 浏览器配置

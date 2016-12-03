@@ -1,12 +1,7 @@
 package confucian.data.xml;
 
 import com.google.common.collect.Maps;
-import confucian.common.Utils;
-import confucian.data.IDataSource;
-import confucian.data.IMappingData;
-import confucian.data.ImplementIMap;
-import confucian.data.PropertyValueMin;
-import confucian.driver.SuiteConfiguration;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,12 +11,20 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import confucian.common.Utils;
+import confucian.data.IDataSource;
+import confucian.data.IMappingData;
+import confucian.data.ImplementIMap;
+import confucian.data.PropertyValueMin;
+import confucian.driver.SuiteConfiguration;
 
 /**
  * Mapping.xml 解析器
@@ -39,7 +42,9 @@ public class MappingParserRevisit implements IDataSource {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            document = builder.parse(Utils.getResources(getMappingFile()));
+            String resources = Utils.getResources(getMappingFile());
+            assert resources != null;
+            document = builder.parse(resources);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             LOGGER.error(e);
         }
@@ -125,12 +130,12 @@ public class MappingParserRevisit implements IDataSource {
     public Map<String, IMappingData> getPrimaryData() {
         // 获取根元素
         walkInXml(document.getDocumentElement());
-        for (String bs_key : bucket.keySet()) {
-            LOGGER.info("测试类名称: " + bs_key);
-            LOGGER.info(" 测试数据: " + bucket.get(bs_key).getTestData());
-            LOGGER.info(" 客户端环境: " + bucket.get(bs_key).getClientEnvironment());
-            LOGGER.info(" 运行策略: " + bucket.get(bs_key).getRunStrategy());
-        }
+        bucket.forEach((k, v) -> {
+            LOGGER.info("测试类名称: " + k);
+            LOGGER.info(" 测试数据: " + v.getTestData());
+            LOGGER.info(" 客户端环境: " + v.getClientEnvironment());
+            LOGGER.info(" 运行策略: " + v.getRunStrategy());
+        });
         return bucket;
     }
 

@@ -24,6 +24,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import confucian.exception.FrameworkException;
+
 /**
  * 使用Velocity模板生成其输出的TestNG的增强的HTML报告器
  */
@@ -88,7 +90,7 @@ public class HTMLReporter extends AbstractReporter {
             createLog(outputDirectory, onlyFailures);
             copyResources(outputDirectory);
         } catch (Exception ex) {
-            throw new ReportNGException("Failed generating HTML report.", ex);
+            throw new FrameworkException("生成HTML报告失败", ex);
         }
     }
 
@@ -165,11 +167,7 @@ public class HTMLReporter extends AbstractReporter {
     private SortedMap<IClass, List<ITestResult>> sortByTestClass(IResultMap results) {
         SortedMap<IClass, List<ITestResult>> sortedResults = new TreeMap<>(CLASS_COMPARATOR);
         for (ITestResult result : results.getAllResults()) {
-            List<ITestResult> resultsForClass = sortedResults.get(result.getTestClass());
-            if (resultsForClass == null) {
-                resultsForClass = new ArrayList<>();
-                sortedResults.put(result.getTestClass(), resultsForClass);
-            }
+            List<ITestResult> resultsForClass = sortedResults.computeIfAbsent(result.getTestClass(), k -> new ArrayList<>());
             int index = Collections.binarySearch(resultsForClass, result, RESULT_COMPARATOR);
             if (index < 0) {
                 index = Math.abs(index + 1);
