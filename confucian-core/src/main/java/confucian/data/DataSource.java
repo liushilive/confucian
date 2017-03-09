@@ -5,15 +5,26 @@ package confucian.data;
  */
 public enum DataSource {
     /**
-     * Excel数据源
+     * CSV数据源,无浏览器配置
      */
-    Excel, /**
-     * XML数据源
+    CSVData,
+    /**
+     * XML数据源,无浏览器配置
      */
-    XmlData, /**
-     * 没有数据源
+    XmlData,
+    /**
+     * CSV数据源,带浏览器配置
      */
-    NoSource, /**
+    CSVDataBrowser,
+    /**
+     * XML数据源,带浏览器配置
+     */
+    XmlDataBrowser,
+    /**
+     * 没有数据源,带浏览器配置
+     */
+    NoSourceBrowser,
+    /**
      * 无效的数据源
      */
     Invalid

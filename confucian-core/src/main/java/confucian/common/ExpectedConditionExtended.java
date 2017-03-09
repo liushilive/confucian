@@ -23,23 +23,18 @@ import java.util.List;
  * 此类中的方法弥补 WebDriverWait 中没有抛出异常。
  * 在所有自定义 FluentWait 中抛出 {@link NoSuchElementException} 。
  */
-public class ExpectedConditionExtended {
+public interface ExpectedConditionExtended {
 
-    private static final Logger LOGGER = LogManager.getLogger();
-
-    /**
-     * 隐藏的构造函数
-     */
-    private ExpectedConditionExtended() {
-    }
+    Logger LOGGER = LogManager.getLogger();
 
     /**
      * 检查WebElement是否可见并启用
      *
      * @param element : WebElement
+     *
      * @return 可点击返回元素 ，否则返回null
      */
-    public static ExpectedCondition<WebElement> elementToBeClickable(final WebElement element) {
+    static ExpectedCondition<WebElement> elementToBeClickable(final WebElement element) {
         return new ExpectedCondition<WebElement>() {
             ExpectedCondition<WebElement> visibilityOfElement = ExpectedConditions.visibilityOf(element);
 
@@ -69,9 +64,10 @@ public class ExpectedConditionExtended {
      * 检查 WebElement 列表是否都可点击
      *
      * @param elements WebElements 列表
+     *
      * @return 全部可点击返回true expected condition
      */
-    public static ExpectedCondition<Boolean> elementToBeClickable(final List<WebElement> elements) {
+    static ExpectedCondition<Boolean> elementToBeClickable(final List<WebElement> elements) {
         final List<Boolean> statusList = Lists.newArrayList();
         return new ExpectedCondition<Boolean>() {
             @Override
@@ -107,9 +103,10 @@ public class ExpectedConditionExtended {
      * 检查元素被禁用
      *
      * @param element : WebElement
+     *
      * @return true 表示元素被禁止
      */
-    public static ExpectedCondition<Boolean> elementToBeDisabled(final WebElement element) {
+    static ExpectedCondition<Boolean> elementToBeDisabled(final WebElement element) {
         return new ExpectedCondition<Boolean>() {
             ExpectedCondition<WebElement> visibilityOfElement = ExpectedConditions.visibilityOf(element);
 
@@ -141,9 +138,10 @@ public class ExpectedConditionExtended {
      * 检查 WebElement 列表是否都可见
      *
      * @param elements WebElements列表
+     *
      * @return 全部可见返回true expected condition
      */
-    public static ExpectedCondition<Boolean> elementToBeDisplayed(final List<WebElement> elements) {
+    static ExpectedCondition<Boolean> elementToBeDisplayed(final List<WebElement> elements) {
         final List<Boolean> statusList = Lists.newArrayList();
         return new ExpectedCondition<Boolean>() {
             @Override
@@ -174,9 +172,10 @@ public class ExpectedConditionExtended {
      * 检查WebElements 列表中元素是否可点击，如果存在任何WebElement不可点击将返回false
      *
      * @param elements WebElements 列表
+     *
      * @return 存在任何WebElement不可点击将返回false expected condition
      */
-    public static ExpectedCondition<Boolean> elementsToBeClickable(final WebElement... elements) {
+    static ExpectedCondition<Boolean> elementsToBeClickable(final WebElement... elements) {
         final List<Boolean> statusList = Lists.newArrayList();
 
         return new ExpectedCondition<Boolean>() {
@@ -214,9 +213,10 @@ public class ExpectedConditionExtended {
      * 检查一个元素是否可见或DOM中是否存在
      *
      * @param locator 要检查的元素
+     *
      * @return true 表示元素可见或DOM中存在
      */
-    public static ExpectedCondition<Boolean> invisibilityOfElementLocated(final By locator) {
+    static ExpectedCondition<Boolean> invisibilityOfElementLocated(final By locator) {
         return invisibilityOfElementLocated(locator, null);
     }
 
@@ -225,10 +225,11 @@ public class ExpectedConditionExtended {
      *
      * @param locator       要检查的元素
      * @param parentElement the parent element
+     *
      * @return true 表示元素可见或DOM中存在
      */
-    public static ExpectedCondition<Boolean> invisibilityOfElementLocated(final By locator,
-                                                                          final WebElement parentElement) {
+    static ExpectedCondition<Boolean> invisibilityOfElementLocated(final By locator,
+                                                                   final WebElement parentElement) {
         return new ExpectedCondition<Boolean>() {
             @Override
             public Boolean apply(WebDriver driver) {
@@ -254,9 +255,10 @@ public class ExpectedConditionExtended {
      * 检查一个元素是否可见或DOM中是否存在
      *
      * @param webelement 要检查的元素
+     *
      * @return true 表示元素可见或DOM中存在
      */
-    public static ExpectedCondition<Boolean> invisibilityOfElementLocated(final WebElement webelement) {
+    static ExpectedCondition<Boolean> invisibilityOfElementLocated(final WebElement webelement) {
         return new ExpectedCondition<Boolean>() {
 
             @Override
@@ -281,7 +283,7 @@ public class ExpectedConditionExtended {
      *
      * @return the expected condition
      */
-    public static ExpectedCondition<Boolean> pageLoad() {
+    static ExpectedCondition<Boolean> pageLoad() {
         return new ExpectedCondition<Boolean>() {
             private Object value = null;
 

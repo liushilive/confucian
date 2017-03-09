@@ -11,49 +11,41 @@ import java.util.Random;
 /**
  * 随机工具类
  */
-public class RandomUtils {
+public interface RandomUtils {
     /**
      * 制定字符串范围的因子：
      * 大写字母
      */
-    private static final String CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    String CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     /**
      * 制定字符串范围的因子：
      * 字母
      */
-    private static final String LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    String LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     /**
      * 制定字符串范围的因子：
      * 小写字母
      */
-    private static final String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
+    String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
     /**
      * 制定字符串范围的因子：
      * 数字
      */
-    private static final String NUMBERS = "0123456789";
+    String NUMBERS = "0123456789";
     /**
      * 制定字符串范围的因子：
      * 数字与字母
      */
-    private static final String NUMBERS_AND_LETTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    /**
-     * 获取随机布尔值.
-     *
-     * @return the random bool
-     */
-    public static boolean getRandomBool() {
-        return getRandom(1) == 0;
-    }
+    String NUMBERS_AND_LETTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     /**
      * 获取0~max范围的随机int
      *
      * @param max the max
+     *
      * @return the random
      */
-    public static int getRandom(int max) {
+    static int getRandom(int max) {
         return getRandom(0, max);
     }
 
@@ -62,9 +54,10 @@ public class RandomUtils {
      *
      * @param min the min
      * @param max the max
+     *
      * @return the random
      */
-    public static int getRandom(int min, int max) {
+    static int getRandom(int min, int max) {
         if (min > max) {
             return 0;
         }
@@ -75,23 +68,14 @@ public class RandomUtils {
     }
 
     /**
-     * 获取大写字母组成的随机字符串
-     *
-     * @param length the length
-     * @return the random capital letters
-     */
-    public static String getRandomCapitalLetters(int length) {
-        return getRandom(CAPITAL_LETTERS, length);
-    }
-
-    /**
      * 获取制定字符串和长度的随机字符串
      *
      * @param source the source
      * @param length the length
+     *
      * @return the random
      */
-    public static String getRandom(String source, int length) {
+    static String getRandom(String source, int length) {
         return TextUtils.isEmpty(source) ?
                 null :
                 getRandom(source.toCharArray(), length);
@@ -102,9 +86,10 @@ public class RandomUtils {
      *
      * @param sourceChar the source char
      * @param length     the length
+     *
      * @return the random
      */
-    public static String getRandom(char[] sourceChar, int length) {
+    static String getRandom(char[] sourceChar, int length) {
         if (sourceChar == null || sourceChar.length == 0 || length < 0) {
             return null;
         }
@@ -117,12 +102,33 @@ public class RandomUtils {
     }
 
     /**
+     * 获取随机布尔值.
+     *
+     * @return the random bool
+     */
+    static boolean getRandomBool() {
+        return getRandom(1) == 0;
+    }
+
+    /**
+     * 获取大写字母组成的随机字符串
+     *
+     * @param length the length
+     *
+     * @return the random capital letters
+     */
+    static String getRandomCapitalLetters(int length) {
+        return getRandom(CAPITAL_LETTERS, length);
+    }
+
+    /**
      * 获取英文字母组成的随机字符串
      *
      * @param length the length
+     *
      * @return the random letters
      */
-    public static String getRandomLetters(int length) {
+    static String getRandomLetters(int length) {
         return getRandom(LETTERS, length);
     }
 
@@ -132,9 +138,10 @@ public class RandomUtils {
      * @param min the min
      * @param max the max
      * @param num the num
+     *
      * @return the random
      */
-    public static List<Integer> getRandomList(int min, int max, int num) {
+    static List<Integer> getRandomList(int min, int max, int num) {
         List<Integer> list = Lists.newArrayList();
 
         if (min == max || max - min + 1 < num) {
@@ -158,9 +165,10 @@ public class RandomUtils {
      * 获取小写字母组成的随机字符串
      *
      * @param length the length
+     *
      * @return the random lower case letters
      */
-    public static String getRandomLowerCaseLetters(int length) {
+    static String getRandomLowerCaseLetters(int length) {
         return getRandom(LOWER_CASE_LETTERS, length);
     }
 
@@ -168,9 +176,10 @@ public class RandomUtils {
      * 获取随机数字字符串
      *
      * @param length the length
+     *
      * @return the random numbers
      */
-    public static String getRandomNumbers(int length) {
+    static String getRandomNumbers(int length) {
         return getRandom(NUMBERS, length);
     }
 
@@ -178,9 +187,10 @@ public class RandomUtils {
      * 获取随机数字、字母字符串.
      *
      * @param length the length
+     *
      * @return the random numbers and letters
      */
-    public static String getRandomNumbersAndLetters(int length) {
+    static String getRandomNumbersAndLetters(int length) {
         return getRandom(NUMBERS_AND_LETTERS, length);
     }
 }

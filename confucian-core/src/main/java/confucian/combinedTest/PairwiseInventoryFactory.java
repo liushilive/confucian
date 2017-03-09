@@ -29,6 +29,7 @@ public class PairwiseInventoryFactory {
      * 解析字符串表示的内容场景中,并返回该场景
      *
      * @param contents 场景字符串-测试内容
+     *
      * @return the Scenario
      */
     public static IInventory generateParameterInventory(String contents) {
@@ -40,54 +41,12 @@ public class PairwiseInventoryFactory {
     }
 
     /**
-     * 通过参数设置填充的列表ParameterSets
-     *
-     * @param contents 测试场景内容
-     * @return 返回场景，完全填充
-     */
-    private static Scenario generateScenario(String contents) {
-        Scenario scenario = new Scenario();
-        for (String line : StringUtils.split(contents, System.getProperty("line.separator"))) {
-            scenario.addParameterSet(processOneLine(line));
-        }
-        return scenario;
-    }
-
-    /**
-     * 处理单个输入的行
-     *
-     * @param line 一行,包含一个参数空间(如：“标题:Value1,Value2,Value3”)
-     * @return parameter set
-     */
-    private static ParameterSet<String> processOneLine(String line) {
-        LOGGER.debug("处理行: {}", line);
-        String[] lineTokens = line.split(":", 2);
-        List<String> strValues = splitAndTrim(lineTokens[1]);
-        ParameterSet<String> parameterSet = new ParameterSet<>(strValues);
-        parameterSet.setName(lineTokens[0]);
-        return parameterSet;
-    }
-
-    /**
-     * 分割并去除空格
-     *
-     * @param lineTokens 行数据
-     * @return 分割后数据列表
-     */
-    private static List<String> splitAndTrim(String lineTokens) {
-        String[] rawTokens = lineTokens.split(",");
-        String[] processedTokens = new String[rawTokens.length];
-        for (int i = 0; i < rawTokens.length; i++) {
-            processedTokens[i] = StringUtils.trim(rawTokens[i]);
-        }
-        return Arrays.asList(processedTokens);
-    }
-
-    /**
      * 解析流表示的内容场景中,并返回该场景
      *
      * @param stream 流
+     *
      * @return inventory inventory
+     *
      * @throws IOException the io exception
      */
     public static IInventory generateParameterInventory(InputStream stream) throws IOException {
@@ -139,10 +98,26 @@ public class PairwiseInventoryFactory {
     }
 
     /**
+     * 通过参数设置填充的列表ParameterSets
+     *
+     * @param contents 测试场景内容
+     *
+     * @return 返回场景，完全填充
+     */
+    private static Scenario generateScenario(String contents) {
+        Scenario scenario = new Scenario();
+        for (String line : StringUtils.split(contents, System.getProperty("line.separator"))) {
+            scenario.addParameterSet(processOneLine(line));
+        }
+        return scenario;
+    }
+
+    /**
      * 处理List输入
      *
      * @param s    名称
      * @param maps 列表
+     *
      * @return parameter Map
      */
     private static ParameterSet<Map> processList(String s, ArrayList<Map> maps) {
@@ -150,5 +125,37 @@ public class PairwiseInventoryFactory {
         ParameterSet<Map> parameterSet = new ParameterSet<>(maps);
         parameterSet.setName(s);
         return parameterSet;
+    }
+
+    /**
+     * 处理单个输入的行
+     *
+     * @param line 一行,包含一个参数空间(如：“标题:Value1,Value2,Value3”)
+     *
+     * @return parameter set
+     */
+    private static ParameterSet<String> processOneLine(String line) {
+        LOGGER.debug("处理行: {}", line);
+        String[] lineTokens = line.split(":", 2);
+        List<String> strValues = splitAndTrim(lineTokens[1]);
+        ParameterSet<String> parameterSet = new ParameterSet<>(strValues);
+        parameterSet.setName(lineTokens[0]);
+        return parameterSet;
+    }
+
+    /**
+     * 分割并去除空格
+     *
+     * @param lineTokens 行数据
+     *
+     * @return 分割后数据列表
+     */
+    private static List<String> splitAndTrim(String lineTokens) {
+        String[] rawTokens = lineTokens.split(",");
+        String[] processedTokens = new String[rawTokens.length];
+        for (int i = 0; i < rawTokens.length; i++) {
+            processedTokens[i] = StringUtils.trim(rawTokens[i]);
+        }
+        return Arrays.asList(processedTokens);
     }
 }

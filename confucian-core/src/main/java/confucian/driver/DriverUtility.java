@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
@@ -45,16 +46,18 @@ import static confucian.driver.Driver.getDriver;
 /**
  * WebDriver 相关功能
  */
-public class DriverUtility {
-
-    private static final Logger LOGGER = LogManager.getLogger();
+public interface DriverUtility {
+    /**
+     * The constant LOGGER.
+     */
+    Logger LOGGER = LogManager.getLogger();
 
     /**
      * 接受或驳回窗口提示
      *
      * @param acceptOrDismiss accept：接受<p>dismiss:驳回
      */
-    public static void acceptOrDismissAlert(UnexpectedAlertBehaviour acceptOrDismiss) {
+    static void acceptOrDismissAlert(UnexpectedAlertBehaviour acceptOrDismiss) {
         Alert alert = getDriver().switchTo().alert();
         switch (acceptOrDismiss) {
             case ACCEPT:
@@ -69,28 +72,13 @@ public class DriverUtility {
     }
 
     /**
-     * 复选框状态改变，元素应该是可见的
+     * Check un checked.
      *
-     * @param webElement   复选框元素
-     * @param checkUnCheck {@link CHECK_UNCHECKED} 枚举
+     * @param webElement   the web element
+     * @param checkUnCheck the check un check
+     * @param checked      the checked
      */
-    public static void checkUncheckedCheckBox(WebElement webElement, CHECK_UNCHECKED checkUnCheck) {
-        boolean checked = webElement.isSelected();
-        checkUnChecked(webElement, checkUnCheck, checked);
-    }
-
-    /**
-     * 复选框状态改变，元素应该是可见的，非正规复选框，class中以cur标志判断。
-     *
-     * @param webElement   复选框元素
-     * @param checkUnCheck {@link CHECK_UNCHECKED} 枚举
-     */
-    public static void checkUncheckedCheckBox_cur(WebElement webElement, CHECK_UNCHECKED checkUnCheck) {
-        boolean checked = webElement.getAttribute("class").contains("cur");
-        checkUnChecked(webElement, checkUnCheck, checked);
-    }
-
-    private static void checkUnChecked(WebElement webElement, CHECK_UNCHECKED checkUnCheck, boolean checked) {
+    static void checkUnChecked(WebElement webElement, CHECK_UNCHECKED checkUnCheck, boolean checked) {
         if (checked) {
             if (checkUnCheck.toString().equalsIgnoreCase(CHECK_UNCHECKED.UNCHECKED.toString())) {
                 webElement.click();
@@ -103,9 +91,55 @@ public class DriverUtility {
     }
 
     /**
+     * 复选框状态改变，元素应该是可见的
+     *
+     * @param webElement   复选框元素
+     * @param checkUnCheck {@link CHECK_UNCHECKED} 枚举
+     */
+    static void checkUncheckedCheckBox(WebElement webElement, CHECK_UNCHECKED checkUnCheck) {
+        boolean checked = webElement.isSelected();
+        checkUnChecked(webElement, checkUnCheck, checked);
+    }
+
+    /**
+     * 复选框状态改变，元素应该是可见的，非正规复选框，class中以cur标志判断。
+     *
+     * @param webElement   复选框元素
+     * @param checkUnCheck {@link CHECK_UNCHECKED} 枚举
+     */
+    static void checkUncheckedCheckBox_cur(WebElement webElement, CHECK_UNCHECKED checkUnCheck) {
+        boolean checked = webElement.getAttribute("class").contains("cur");
+        checkUnChecked(webElement, checkUnCheck, checked);
+    }
+
+    /**
+     * Click.
+     *
+     * @param element the element
+     */
+    static void click(WebElement element) {
+        int iTimeout = 20;
+        while (iTimeout > 0)
+            try {
+                element.click();
+                return;
+            } catch (org.openqa.selenium.WebDriverException err) {
+                iTimeout--;
+                if (err.getMessage().contains("not clickable at point")) {
+                    if (iTimeout == 0) {
+                        throw err;
+                    }
+                } else {
+                    throw err;
+                }
+                DriverUtility.wait(1000);
+            }
+    }
+
+    /**
      * Close others windows.
      */
-    public static void closeOthersWindows() {
+    static void closeOthersWindows() {
         String currentHandle = getDriver().getWindowHandle();
         waitForLoad();
         Set<String> handles = getDriver().getWindowHandles();
@@ -124,123 +158,35 @@ public class DriverUtility {
     }
 
     /**
-     * 等待网页完全加载完毕
+     * Close window.
      */
-    public static void waitForLoad() {
-        waitForLoad("");
+    static void closeWindow() {
+        Driver.getDriver().close();
     }
 
     /**
-     * 等待网页完全加载完毕
-     *
-     * @param pageName the page name
-     */
-    public static void waitForLoad(String pageName) {
-        Boolean waitFor = null;
-        try {
-            waitFor = waitFor(ExpectedConditionExtended.pageLoad(), 300, "网页加载完毕");
-        } catch (Exception e) {
-            LOGGER.warn(pageName + "页面300S内未加载完成:", e);
-        }
-        if (waitFor == null || !waitFor) {
-            LOGGER.warn(pageName + "页面300S内未加载完成:");
-        }
-    }
-
-    /**
-     * 等待条件的成功，否则返回null
-     *
-     * @param <T>               类型参数
-     * @param expectedCondition :预期条件
-     * @param timeOutInSeconds  时间以秒为单位
-     * @param name              the name
-     * @return T or null
-     */
-    public static <T> T waitFor(ExpectedCondition<T> expectedCondition, int timeOutInSeconds, String name) {
-        try {
-            getDriver().manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
-            return new WebDriverWait(getDriver(), timeOutInSeconds).pollingEvery(500, TimeUnit.MILLISECONDS)
-                    .until(expectedCondition);
-        } catch (Exception e) {
-            LOGGER.debug(e);
-            return null;
-        } finally {
-            try {
-                getDriver().manage().timeouts()
-                        .implicitlyWait(Driver.getBrowserConfig().getDriverTimeOut(), TimeUnit.SECONDS);
-            } catch (Exception ignored) {
-                // 忽略
-            }
-        }
-    }
-
-    /**
-     * 双击 WebElement 使用 JavaScript 或自定义类
-     *
-     * @param element       需要双击的元素
-     * @param clickStrategy {@link CLICK_STRATEGY}枚举
-     */
-    public static void doubleClick(WebElement element, CLICK_STRATEGY clickStrategy) {
-        if (!DriverUtility.isElement(element))
-            return;
-        WebDriver driver = getDriver();
-        switch (clickStrategy) {
-            case USING_ACTION:
-                Actions action = new Actions(driver);
-                action.doubleClick(element).perform();
-                break;
-            case USING_JS:
-                executeJsScript("var evt = document.createEvent('MouseEvents');" +
-                        "evt.initMouseEvent('dblclick',true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0,null);" +
-                        "arguments[0].dispatchEvent(evt);", element);
-                break;
-            default:
-                String clickStrategyParameter;
-                try {
-                    clickStrategyParameter = clickStrategy.toString();
-                } catch (Exception e) {
-                    clickStrategyParameter = "null";
-                }
-                LOGGER.error("参数不正确: 未知点击策略. " + clickStrategyParameter);
-        }
-    }
-
-    /**
-     * 判断元素是否可点击,默认1S
+     * Double click.
      *
      * @param element the element
-     * @return the boolean
      */
-    public static boolean isElement(WebElement element) {
-        return isElement(element, 1);
+    static void doubleClick(WebElement element) {
+        Actions action = new Actions(Driver.getDriver());
+        action.doubleClick(element);
+        action.perform();
+        // executeJsScript("var evt = document.createEvent('MouseEvents');" +
+        //         "evt.initMouseEvent('dblclick',true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0,null);" +
+        //         "arguments[0].dispatchEvent(evt);", element);
     }
 
     /**
-     * 判断元素是否可点击
+     * 拖拽元素
      *
-     * @param element the element
-     * @param time    等待时间
-     * @return the boolean
+     * @param sourceElement 需要拖拽的元素
+     * @param targetElement 目标元素
      */
-    public static boolean isElement(WebElement element, int time) {
-        return isElement(element, time, element.toString());
-    }
-
-    /**
-     * 判断元素是否可点击
-     *
-     * @param element the element
-     * @param time    等待时间
-     * @param s       the s
-     * @return the boolean
-     */
-    public static boolean isElement(WebElement element, int time, String s) {
-        try {
-            return null != waitFor(ExpectedConditionExtended.elementToBeClickable(element), time, s);
-        } catch (Exception e) {
-            LOGGER.warn(e);
-            return false;
-        }
+    static void dragAndDrop(WebElement sourceElement, WebElement targetElement) {
+        Actions a = new Actions(getDriver());
+        a.dragAndDrop(sourceElement, targetElement).build().perform();
     }
 
     /**
@@ -248,9 +194,10 @@ public class DriverUtility {
      *
      * @param JS   the js
      * @param args the args
+     *
      * @return the object
      */
-    public static Object executeJsScript(String JS, Object... args) {
+    static Object executeJsScript(String JS, Object... args) {
         if (JS.isEmpty())
             return null;
         try {
@@ -266,23 +213,196 @@ public class DriverUtility {
      *
      * @param filePath the file path
      * @param arg      the arg
+     *
      * @return the object
      */
-    public static Object executeJsScriptOfFile(String filePath, Object... arg) {
+    static Object executeJsScriptOfFile(String filePath, Object... arg) {
         String script = Utils.getResourcesOfFile(filePath);
         return executeJsScript(script, arg);
     }
 
     /**
-     * 拖拽元素
+     * Find web element.
      *
-     * @param sourceElement 需要拖拽的元素
-     * @param targetElement 目标元素
+     * @param by the by
+     *
+     * @return the web element
      */
-    public static void dragAndDrop(WebElement sourceElement, WebElement targetElement) {
-        WebDriver driver = getDriver();
-        Actions a = new Actions(driver);
-        a.dragAndDrop(sourceElement, targetElement).perform();
+    static WebElement find(By by) {
+        return Driver.getDriver().findElement(by);
+    }
+
+    /**
+     * Find web element.
+     *
+     * @param element the element
+     * @param by      the by
+     *
+     * @return the web element
+     */
+    static WebElement find(WebElement element, By by) {
+        return element.findElement(by);
+    }
+
+    /**
+     * Find all list.
+     *
+     * @param element the element
+     * @param by      the by
+     *
+     * @return the list
+     */
+    static List<WebElement> findAll(WebElement element, By by) {
+        return element.findElements(by);
+    }
+
+    /**
+     * Find all list.
+     *
+     * @param by the by
+     *
+     * @return the list
+     */
+    static List<WebElement> findAll(By by) {
+        return Driver.getDriver().findElements(by);
+    }
+
+    /**
+     * 获取属性
+     *
+     * @param element the element
+     * @param href    the href
+     *
+     * @return the attribute
+     */
+    static String getAttribute(WebElement element, String href) {
+        int iTimeout = 20;
+        while (iTimeout > 0) {
+            try {
+                return element.getAttribute(href);
+            } catch (StaleElementReferenceException err) {
+                iTimeout--;
+                if (err.getMessage().contains("stale element reference")) {
+                    if (iTimeout == 0) {
+                        throw new FrameworkException(element.toString(), err);
+                    }
+                } else {
+                    throw new FrameworkException(element.toString(), err);
+                }
+                DriverUtility.wait(1000);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 当前滚动X位置
+     *
+     * @return 当前滚动X位置 current scroll x
+     */
+    static int getCurrentScrollX() {
+        Object value = executeJsScript("return Math.max(document.documentElement.scrollLeft, document.body.scrollLeft);");
+        return value != null ? ((Long) value).intValue() : 0;
+    }
+
+    /**
+     * 当前滚动y位置
+     *
+     * @return 当前滚动y位置 current scroll y
+     */
+    static int getCurrentScrollY() {
+        Object value = executeJsScript("return Math.max(document.documentElement.scrollTop, document.body.scrollTop);");
+        return value != null ? ((Long) value).intValue() : 0;
+    }
+
+    /**
+     * 页面高度
+     *
+     * @return 页面高度 doc height
+     */
+    static int getDocHeight() {
+        Object value = executeJsScript("return Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);");
+        int docHeight = Driver.getDriver() == null ? -1 : Driver.getDriver().manage().window().getSize().getHeight();
+        return value != null ? Math.max(docHeight, ((Long) value).intValue()) : docHeight;
+    }
+
+    /**
+     * 页面宽度
+     *
+     * @return 页面宽度 doc width
+     */
+    static int getDocWidth() {
+        Object value = executeJsScript("return Math.max(document.body.scrollWidth, document.body.offsetWidth, document.documentElement.clientWidth, document.documentElement.scrollWidth, document.documentElement.offsetWidth);");
+        int docWidth = Driver.getDriver() == null ? -1 : Driver.getDriver().manage().window().getSize().getWidth();
+        return value == null ? 0 : Math.max(((Long) value).intValue(), docWidth);
+    }
+
+    /**
+     * Get text string.
+     *
+     * @param element the element
+     *
+     * @return the string
+     */
+    static String getText(WebElement element) {
+        return element.getText();
+    }
+
+    /**
+     * Gets title.
+     *
+     * @return the title
+     */
+    static String getTitle() {
+        return Driver.getDriver().getTitle();
+    }
+
+    /**
+     * Gets url.
+     *
+     * @return the url
+     */
+    static String getURL() {
+        try {
+            return URLDecoder.decode(Driver.getDriver().getCurrentUrl(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new FrameworkException("当前URL转换失败：");
+        }
+    }
+
+    /**
+     * 窗口高度
+     *
+     * @return 窗口高度 viewport height
+     */
+    static int getViewportHeight() {
+        Object script = executeJsScript("return Math.max(document.documentElement.clientHeight, window.innerHeight || 0);");
+        return script != null ? ((Long) script).intValue() : 0;
+    }
+
+    /**
+     * 窗口宽度.
+     *
+     * @return 窗口的宽度 viewport width
+     */
+    static int getViewportWidth() {
+        Object script = executeJsScript("return Math.max(document.documentElement.clientWidth, window.innerWidth || 0);");
+        return script != null ? ((Long) script).intValue() : 0;
+    }
+
+    /**
+     * 高亮标记
+     *
+     * @param element element
+     * @param b       True 高亮，FALSE取消高亮
+     */
+    static void highlight(WebElement element, boolean b) {
+        try {
+            String script = "";
+            if (b) script = "color: red; border: 5px solid red;";
+            DriverUtility.executeJsScript("arguments[0].setAttribute('style', arguments[1]);", element, script);
+        } catch (Exception ignored) {
+        }
     }
 
     /**
@@ -290,7 +410,7 @@ public class DriverUtility {
      *
      * @return 存在返回message ，不存在返回null
      */
-    public static String isAlert() {
+    static String isAlert() {
         return isAlert(5);
     }
 
@@ -298,23 +418,46 @@ public class DriverUtility {
      * 检查弹窗是否存在
      *
      * @param time the time
+     *
      * @return 存在返回message ，不存在返回null
      */
-    public static String isAlert(int time) {
-        Alert alert = waitFor(ExpectedConditions.alertIsPresent(), time, "Alert");
-        if (alert == null)
-            return null;
-        return alert.getText();
+    static String isAlert(int time) {
+        Alert alert = waitFor(ExpectedConditions.alertIsPresent(), time);
+        return alert == null ? null : alert.getText();
+    }
+
+    /**
+     * 判断元素是否可点击,默认1S
+     *
+     * @param element the element
+     *
+     * @return the boolean
+     */
+    static boolean isElement(WebElement element) {
+        return isElement(element, 1);
+    }
+
+    /**
+     * 判断元素是否可点击
+     *
+     * @param element the element
+     * @param time    等待时间
+     *
+     * @return the boolean
+     */
+    static boolean isElement(WebElement element, int time) {
+        return null != waitFor(ExpectedConditionExtended.elementToBeClickable(element), time);
     }
 
     /**
      * 判断元素是否可点击,默认1S
      *
      * @param locator the locator
+     *
      * @return the boolean
      */
-    public static boolean isElement(By locator) {
-        return isElement(locator, null, 1, locator.toString());
+    static boolean isElement(By locator) {
+        return isElement(locator, null, 1);
     }
 
     /**
@@ -323,17 +466,11 @@ public class DriverUtility {
      * @param locator       the locator
      * @param parentElement the parent element
      * @param time          等待时间
-     * @param s             the s
+     *
      * @return the boolean
      */
-    public static boolean isElement(By locator, WebElement parentElement, int time, String s) {
-        try {
-            return null !=
-                    waitFor(ExpectedConditionExtended.invisibilityOfElementLocated(locator, parentElement), time, s);
-        } catch (Exception e) {
-            LOGGER.warn(e);
-            return false;
-        }
+    static boolean isElement(By locator, WebElement parentElement, int time) {
+        return null != waitFor(ExpectedConditionExtended.invisibilityOfElementLocated(locator, parentElement), time);
     }
 
     /**
@@ -341,22 +478,23 @@ public class DriverUtility {
      *
      * @param locator       the locator
      * @param parentElement the parent element
+     *
      * @return the boolean
      */
-    public static boolean isElement(By locator, WebElement parentElement) {
-        return isElement(locator, parentElement, 1, locator.toString());
+    static boolean isElement(By locator, WebElement parentElement) {
+        return isElement(locator, parentElement, 1);
     }
 
     /**
      * 判断元素是否出现
      *
-     * @param locator       the locator
-     * @param parentElement the parent element
-     * @param time          等待时间
+     * @param locator the locator
+     * @param time    等待时间
+     *
      * @return the boolean
      */
-    public static boolean isElement(By locator, WebElement parentElement, int time) {
-        return isElement(locator, parentElement, time, locator.toString());
+    static boolean isElement(By locator, int time) {
+        return isElement(locator, null, time);
     }
 
     /**
@@ -364,7 +502,7 @@ public class DriverUtility {
      *
      * @param webElement the web element
      */
-    public static void moveToElement(WebElement webElement) {
+    static void mouseOverToElement(WebElement webElement) {
         WebDriver webDriver = getDriver();
         try {
             if (webDriver == null) {
@@ -376,8 +514,9 @@ public class DriverUtility {
                 return;
             }
             String mouseHoverJS = "var evt = document.createEvent('MouseEvents');" +
-                    "evt.initMouseEvent(\"mouseover\",true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);" +
+                    "evt.initEvent(\"mouseover\",true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);" +
                     "arguments[0].dispatchEvent(evt);";
+
             executeJsScript(mouseHoverJS, webElement);
         } catch (Exception e) {
             LOGGER.warn("鼠标悬浮", e);
@@ -385,10 +524,25 @@ public class DriverUtility {
     }
 
     /**
-     * 滚动到底部
+     * 右击元素
+     *
+     * @param element the element
      */
-    public static void scrollFooter() {
-        executeJsScript("var q=document.body.scrollTop=document.body.scrollHeight");
+    static void rightClick(WebElement element) {
+        if (!DriverUtility.isElement(element))
+            return;
+        Actions action = new Actions(getDriver());
+        action.contextClick(element).perform();
+    }
+
+    /**
+     * 滚动到指定位置.
+     *
+     * @param x the x
+     * @param y the y
+     */
+    static void scrollTo(int x, int y) {
+        executeJsScript("window.scrollTo(arguments[0], arguments[1]);", x, y);
     }
 
     /**
@@ -396,22 +550,29 @@ public class DriverUtility {
      *
      * @param element element
      */
-    public static void scrollToElement(WebElement element) {
-        if (element == null)
-            return;
+    static void scrollToElement(WebElement element) {
         try {
-            int height = getDriver().manage().window().getSize().getHeight();
-            Point coo = element.getLocation();
-            executeJsScript("scrollTo(0," + (coo.getY() - height / 3) + ")");
+            if (getDriver() != null && element != null) {
+                int height = getDriver().manage().window().getSize().getHeight();
+                Point coo = element.getLocation();
+                executeJsScript("scrollTo(0," + (coo.getY() - height / 3) + ")");
+            }
         } catch (Exception ignored) {
             LOGGER.warn(ignored);
         }
     }
 
     /**
+     * 滚动到底部
+     */
+    static void scrollToFooter() {
+        executeJsScript("var q=document.body.scrollTop=document.body.scrollHeight");
+    }
+
+    /**
      * 滚动到顶部
      */
-    public static void scrollTop() {
+    static void scrollTop() {
         executeJsScript("var q=document.body.scrollTop=0");
     }
 
@@ -421,7 +582,7 @@ public class DriverUtility {
      * @param element     元素
      * @param partialText 部分文本
      */
-    public static void selectByPartialText(WebElement element, String partialText) {
+    static void selectByPartialText(WebElement element, String partialText) {
         List<WebElement> optionList = element.findElements(By.tagName("option"));
         optionList.stream().filter(webElement -> webElement.getText().toLowerCase().contains(partialText.toLowerCase()))
                 .forEachOrdered(WebElement::click);
@@ -434,7 +595,7 @@ public class DriverUtility {
      * @param visibleText  文本
      * @param defaultIndex 默认索引
      */
-    public static void selectDropDown(WebElement webElement, String visibleText, Integer defaultIndex) {
+    static void selectDropDown(WebElement webElement, String visibleText, Integer defaultIndex) {
         checkArgument(StringUtils.isNotBlank(visibleText), "选择文本不能为空");
         Select s = null;
         try {
@@ -453,7 +614,7 @@ public class DriverUtility {
      * @param webElement   选择WebElement
      * @param defaultIndex 索引
      */
-    public static void selectDropDown(WebElement webElement, Integer defaultIndex) {
+    static void selectDropDown(WebElement webElement, Integer defaultIndex) {
         Select s;
         try {
             s = new Select(webElement);
@@ -467,9 +628,10 @@ public class DriverUtility {
      * 下拉框可选数量
      *
      * @param webElement 选择WebElement
+     *
      * @return the int
      */
-    public static int selectDropDownSize(WebElement webElement) {
+    static int selectDropDownSize(WebElement webElement) {
         try {
             Select s = new Select(webElement);
             return s.getOptions().size();
@@ -480,26 +642,61 @@ public class DriverUtility {
     }
 
     /**
-     * Gets url.
+     * Send keys.
      *
-     * @return the url
+     * @param element the element
+     * @param s       the s
      */
-    public static String getURL() {
-        try {
-            return URLDecoder.decode(Driver.getDriver().getCurrentUrl(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new FrameworkException("当前URL转换失败：");
+    static void sendKeys(WebElement element, String s) {
+        if (s != null) {
+            element.sendKeys(s);
         }
     }
 
-    public static String getTitle() {
-        return Driver.getDriver().getTitle();
+    /**
+     * 设置焦点
+     *
+     * @param webElement the web element
+     */
+    static void setFocus(WebElement webElement) {
+        try {
+            if (webElement == null)
+                return;
+            if (webElement.getTagName().contains("input"))
+                webElement.sendKeys("");
+            else
+                new Actions(getDriver()).moveToElement(webElement).perform();
+        } catch (Exception e) {
+            LOGGER.warn(e);
+        }
     }
 
     /**
-     * Switch to default frame boolean.
+     * Set text.
+     *
+     * @param element the element
+     * @param s       the s
      */
-    public static void switchToDefaultFrame() {
+    static void setText(WebElement element, String s) {
+        if (s != null) {
+            element.sendKeys(Keys.HOME, Keys.chord(Keys.SHIFT, Keys.END), s);
+        }
+    }
+
+    /**
+     * Submit.
+     *
+     * @param element the element
+     */
+    static void submit(WebElement element) {
+        element.submit();
+    }
+
+
+    /**
+     * Switch to default content.
+     */
+    static void switchToDefaultContent() {
         getDriver().switchTo().defaultContent();
     }
 
@@ -509,7 +706,7 @@ public class DriverUtility {
      * @param <T> WebElement/Integer/String
      * @param t   the t
      */
-    public static <T> void switchToFrame(T t) {
+    static <T> void switchToFrame(T t) {
         try {
             if (t instanceof WebElement)
                 getDriver().switchTo().frame((WebElement) t);
@@ -532,7 +729,7 @@ public class DriverUtility {
      *
      * @return the boolean
      */
-    public static boolean switchToWindow_New() {
+    static boolean switchToWindow_New() {
         String selectLinkOpenInNewTab = Keys.chord(Keys.CONTROL, "t");
         waitForLoad();
         for (String s : getDriver().getWindowHandles()) {
@@ -541,7 +738,7 @@ public class DriverUtility {
             }
         }
         getDriver().findElement(By.cssSelector("body")).sendKeys(selectLinkOpenInNewTab);
-        return switchToWindow_Title("", 1, false);
+        return switchToWindow_Title("", 2, false);
     }
 
     /**
@@ -549,7 +746,7 @@ public class DriverUtility {
      *
      * @return the boolean
      */
-    public static boolean switchToWindow_Next() {
+    static boolean switchToWindow_Next() {
         waitForLoad();
         String currentHandle = getDriver().getWindowHandle();
         waitForLoad();
@@ -574,9 +771,10 @@ public class DriverUtility {
      * @param sTitle    :目标窗口标题
      * @param second    等待时间
      * @param isContain 是否为包含关系，true：包含；false:相等
+     *
      * @return 如果窗口切换成功返回True. boolean
      */
-    public static boolean switchToWindow_Title(String sTitle, int second, boolean isContain) {
+    static boolean switchToWindow_Title(String sTitle, int second, boolean isContain) {
         waitForLoad();
         String currentHandle = getDriver().getWindowHandle();
         waitForLoad();
@@ -623,9 +821,10 @@ public class DriverUtility {
      * @param sURL      :目标窗口URL
      * @param second    等待时间
      * @param isContain 是否为包含关系，true：包含；false:相等
+     *
      * @return 如果窗口切换成功返回True. boolean
      */
-    public static boolean switchToWindow_URL(String sURL, int second, boolean isContain) {
+    static boolean switchToWindow_URL(String sURL, int second, boolean isContain) {
         String currentHandle = getDriver().getWindowHandle();
         waitForLoad();
         Set<String> handles;
@@ -637,7 +836,6 @@ public class DriverUtility {
             handles = getDriver().getWindowHandles();
             handles.remove(currentHandle);
             if (!handles.isEmpty()) {
-
                 startTime = Instant.now().getEpochSecond();
                 consuming = startTime - runTime;
                 long tempTime = endTime - startTime;
@@ -672,9 +870,10 @@ public class DriverUtility {
      * @param path      :文件路径，存储屏幕截图
      * @param imageName the image name
      * @param titles    the titles
+     *
      * @return 文件流 file
      */
-    public static File takeScreenShot(String path, String imageName, String... titles) {
+    static File takeScreenShot(String path, String imageName, String... titles) {
         File saved = new File(path);
         try {
             if (getDriver() != null) {
@@ -682,7 +881,7 @@ public class DriverUtility {
                 String handle_now = getDriver().getWindowHandle();
                 Set<String> windowHandles = getDriver().getWindowHandles();
                 for (String handle : windowHandles) {
-                    String alert = isAlert();
+                    String alert = isAlert(1);
                     if (alert != null) acceptOrDismissAlert(UnexpectedAlertBehaviour.ACCEPT);
                     if (!getDriver().getWindowHandle().equals(handle)) {
                         getDriver().switchTo().window(handle);
@@ -711,6 +910,68 @@ public class DriverUtility {
     }
 
     /**
+     * 硬性等待
+     *
+     * @param millis 毫秒
+     */
+    static void wait(int millis) {
+        try {
+            TimeUnit.MILLISECONDS.sleep(millis);
+        } catch (InterruptedException e) {
+            throw new FrameworkException(e);
+        }
+    }
+
+    /**
+     * 等待条件的成功，否则返回null
+     *
+     * @param <T>               类型参数
+     * @param expectedCondition :预期条件
+     * @param timeOutInSeconds  时间以秒为单位
+     *
+     * @return T or null
+     */
+    static <T> T waitFor(ExpectedCondition<T> expectedCondition, int timeOutInSeconds) {
+        try {
+            getDriver().manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+            return new WebDriverWait(getDriver(), timeOutInSeconds).pollingEvery(500, TimeUnit.MILLISECONDS)
+                    .until(expectedCondition);
+        } catch (Exception e) {
+            return null;
+        } finally {
+            try {
+                getDriver().manage().timeouts()
+                        .implicitlyWait(Driver.getBrowserConfig().getDriverTimeOut(), TimeUnit.SECONDS);
+            } catch (Exception ignored) {
+                // 忽略
+            }
+        }
+    }
+
+    /**
+     * 等待网页完全加载完毕
+     */
+    static void waitForLoad() {
+        waitForLoad("");
+    }
+
+    /**
+     * 等待网页完全加载完毕
+     *
+     * @param pageName the page name
+     *
+     * @return the boolean
+     */
+    static boolean waitForLoad(String pageName) {
+        Boolean waitFor = waitFor(ExpectedConditionExtended.pageLoad(), 300);
+        if (waitFor == null || !waitFor) {
+            LOGGER.warn(pageName + "页面300S内未加载完成:");
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 等待元素在指定时间出现
      *
      * @param <T>      the type parameter
@@ -718,7 +979,7 @@ public class DriverUtility {
      * @param t        秒
      * @param pageName the page name
      */
-    public static <T> void waitForLoad(T o, int t, String pageName) {
+    static <T> void waitForLoad(T o, int t, String pageName) {
         waitForLoad(pageName);
         boolean b;
         if (o instanceof By)
@@ -733,60 +994,9 @@ public class DriverUtility {
     }
 
     /**
-     * 判断元素是否出现
-     *
-     * @param locator the locator
-     * @param time    等待时间
-     * @return the boolean
-     */
-    public static boolean isElement(By locator, int time) {
-        return isElement(locator, null, time, locator.toString());
-    }
-
-    /**
-     * 硬性等待
-     *
-     * @param millis 毫秒
-     */
-    public static void wait(int millis) {
-        try {
-            TimeUnit.MILLISECONDS.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 高亮标记
-     *
-     * @param element element
-     */
-    public static void highlight(WebElement element) {
-        try {
-            DriverUtility.executeJsScript("arguments[0].setAttribute('style', arguments[1]);", element,
-                    "color: red; border: 5px solid red;");
-        } catch (Exception ignored) {
-        }
-    }
-
-    /**
-     * 禁用高亮标记
-     *
-     * @param element the element
-     */
-    public static void disableHighlight(WebElement element) {
-        try {
-            DriverUtility.executeJsScript("arguments[0].setAttribute('style', arguments[1]);", element, "");
-        } catch (Exception e) {
-            // 忽略异常，这通常会抛出
-            // NoSuchElementException & StaleElementReferenceException
-        }
-    }
-
-    /**
      * 枚举选择状态
      */
-    public enum CHECK_UNCHECKED {
+    enum CHECK_UNCHECKED {
         /**
          * 选择
          */
@@ -798,16 +1008,222 @@ public class DriverUtility {
     }
 
     /**
-     * 枚举点击策略.
+     * The interface Cookies.
      */
-    public enum CLICK_STRATEGY {
+    interface Cookies {
         /**
-         * 使用JS
+         * Add cookies boolean.
+         *
+         * @param name  the name
+         * @param value the value
+         *
+         * @return the boolean
          */
-        USING_JS,
+        static void addCookies(String name, String value) {
+            getDriver().manage().addCookie(new Cookie(name, value));
+        }
+
         /**
-         * 使用自定义方法
+         * Delete all cookies.
          */
-        USING_ACTION
+        static void deleteAllCookies() {
+            getDriver().manage().deleteAllCookies();
+        }
+
+        /**
+         * Delete cookies.
+         *
+         * @param name  the name
+         * @param value the value
+         */
+        static void deleteCookies(String name, String value) {
+            getDriver().manage().deleteCookie(new Cookie(name, value));
+        }
+
+        /**
+         * Delete cookies.
+         *
+         * @param name the name
+         */
+        static void deleteCookies(String name) {
+            getDriver().manage().deleteCookieNamed(name);
+        }
+
+        /**
+         * Get cookies set.
+         *
+         * @return the set
+         */
+        static Set<Cookie> getCookies() {
+            return getDriver().manage().getCookies();
+        }
+
+        /**
+         * Get cookies string.
+         *
+         * @param name the name
+         *
+         * @return the string
+         */
+        static String getCookies(String name) {
+            Cookie cookie = getDriver().manage().getCookieNamed(name);
+            return cookie == null ? null : cookie.getValue();
+        }
+    }
+
+    /**
+     * The interface Session storage.
+     */
+    interface SessionStorage {
+        /**
+         * Clear session storage.
+         */
+        static void clearSessionStorage() {
+            executeJsScript("window.sessionStorage.clear();");
+        }
+
+        /**
+         * Gets item from session storage.
+         *
+         * @param key the key
+         *
+         * @return the item from session storage
+         */
+        static String getItemFromSessionStorage(String key) {
+            return (String) executeJsScript(
+                    "return window.sessionStorage.getItem(arguments[0]);", key);
+        }
+
+        /**
+         * Gets key from session storage.
+         *
+         * @param key the key
+         *
+         * @return the key from session storage
+         */
+        static String getKeyFromSessionStorage(int key) {
+            return (String) executeJsScript(
+                    "return window.sessionStorage.key(arguments[0]);", key);
+        }
+
+        /**
+         * Gets session storage length.
+         *
+         * @return the session storage length
+         */
+        static Long getSessionStorageLength() {
+            return (Long) executeJsScript("return window.sessionStorage.length;");
+        }
+
+        /**
+         * Is item present in session storage boolean.
+         *
+         * @param item the item
+         *
+         * @return the boolean
+         */
+        static boolean isItemPresentInSessionStorage(String item) {
+            return executeJsScript(
+                    "return window.sessionStorage.getItem(arguments[0]);", item) != null;
+        }
+
+        /**
+         * Remove item from session storage.
+         *
+         * @param item the item
+         */
+        static void removeItemFromSessionStorage(String item) {
+            executeJsScript(
+                    "window.sessionStorage.removeItem(arguments[0]);", item);
+        }
+
+        /**
+         * Sets item in session storage.
+         *
+         * @param item  the item
+         * @param value the value
+         */
+        static void setItemInSessionStorage(String item, String value) {
+            executeJsScript(
+                    "window.sessionStorage.setItem(arguments[0],arguments[1]);", item, value);
+        }
+    }
+
+    /**
+     * The interface Local storage.
+     */
+    interface LocalStorage {
+        /**
+         * Clear local storage.
+         */
+        static void clearLocalStorage() {
+            executeJsScript("window.localStorage.clear();");
+        }
+
+        /**
+         * Gets item from local storage.
+         *
+         * @param key the key
+         *
+         * @return the item from local storage
+         */
+        static String getItemFromLocalStorage(String key) {
+            return (String) executeJsScript(
+                    "return window.localStorage.getItem(arguments[0]);", key);
+        }
+
+        /**
+         * Gets key from local storage.
+         *
+         * @param key the key
+         *
+         * @return the key from local storage
+         */
+        static String getKeyFromLocalStorage(int key) {
+            return (String) executeJsScript(
+                    "return window.localStorage.key(arguments[0]);", key);
+        }
+
+        /**
+         * Gets local storage length.
+         *
+         * @return the local storage length
+         */
+        static Long getLocalStorageLength() {
+            return (Long) executeJsScript("return window.localStorage.length;");
+        }
+
+        /**
+         * Is item present in local storage boolean.
+         *
+         * @param item the item
+         *
+         * @return the boolean
+         */
+        static boolean isItemPresentInLocalStorage(String item) {
+            return !(executeJsScript(
+                    "return window.localStorage.getItem(arguments[0]);", item) == null);
+        }
+
+        /**
+         * Remove item from local storage.
+         *
+         * @param item the item
+         */
+        static void removeItemFromLocalStorage(String item) {
+            executeJsScript(
+                    "window.localStorage.removeItem(arguments[0]);", item);
+        }
+
+        /**
+         * Sets item in local storage.
+         *
+         * @param item  the item
+         * @param value the value
+         */
+        static void setItemInLocalStorage(String item, String value) {
+            executeJsScript(
+                    "window.localStorage.setItem(arguments[0],arguments[1]);", item, value);
+        }
     }
 }

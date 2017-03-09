@@ -8,17 +8,16 @@ import confucian.exception.FrameworkException;
 /**
  * 当前操作系统
  */
-public class OSName {
-
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static String OS = System.getProperty("os.name").toLowerCase();
+public interface OSName {
+    Logger LOGGER = LogManager.getLogger();
+    String OS = System.getProperty("os.name").toLowerCase();
 
     /**
      * 获取当前操作系统.
      *
      * @return 当前操作系统
      */
-    public static OSN get() {
+    static OSN get() {
         LOGGER.debug("系统名称：" + OS);
         if (OS.contains("win")) {
             return OSN.WIN;
@@ -34,7 +33,7 @@ public class OSName {
     /**
      * 系统枚举.
      */
-    public enum OSN {
+    enum OSN {
         /**
          * Windows.
          */

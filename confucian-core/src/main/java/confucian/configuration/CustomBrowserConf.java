@@ -7,22 +7,18 @@ import confucian.data.IProperty;
 import confucian.data.PropertyMapping;
 import confucian.data.driverConfig.IBrowserConfig;
 
-
 /**
  * 自定义初始化 {@link IBrowserConfig}
  */
-public class CustomBrowserConf {
-    private static final Logger LOGGER = LogManager.getLogger(CustomBrowserConf.class);
-
-    private CustomBrowserConf() {
-    }
+public interface CustomBrowserConf {
+    Logger LOGGER = LogManager.getLogger();
 
     /**
      * 加载自定义属性文件并初始化 {@link DefaultBrowserConfig} 参数
      *
      * @param filePath 新的属性文件完整路径
      */
-    public static void loadPropFile(String filePath) {
+    static void loadPropFile(String filePath) {
         LOGGER.info("加载新的属性文件:" + filePath);
         IProperty prop = new PropertyMapping(filePath);
         DefaultBrowserConfig.loadCustomPropertiesFile(prop);
@@ -33,7 +29,7 @@ public class CustomBrowserConf {
      *
      * @param prop 属性接口
      */
-    public static void loadPropFile(IProperty prop) {
+    static void loadPropFile(IProperty prop) {
         LOGGER.info("加载新的属性：IProperty");
         DefaultBrowserConfig.loadCustomPropertiesFile(prop);
     }

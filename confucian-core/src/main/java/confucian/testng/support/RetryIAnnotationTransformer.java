@@ -50,24 +50,6 @@ public class RetryIAnnotationTransformer implements IAnnotationTransformer2 {
     }
 
     /**
-     * 验证测试方法传入参数准确性
-     *
-     * @param testMethod 测试方法
-     */
-    private boolean isPartOfFactoryTest(Method testMethod) {
-        int length = testMethod.getGenericParameterTypes().length;
-        if (length == 2 && testMethod.getGenericParameterTypes()[0].equals(IBrowserConfig.class) &&
-                testMethod.getGenericParameterTypes()[1].equals(IProperty.class))
-            return true;
-        else if (length == 1 && testMethod.getGenericParameterTypes()[0].equals(IBrowserConfig.class))
-            return true;
-        else if (length == 0)
-            return false;
-        else
-            throw new FrameworkException("无法通过验证测试方法传入参数准确性");
-    }
-
-    /**
      * 转换
      *
      * @param annotation      测试注解
@@ -102,6 +84,30 @@ public class RetryIAnnotationTransformer implements IAnnotationTransformer2 {
             methodContextHolder.put(Utils.getFullMethodName(testMethod), context);
         }
 
+    }
+
+    /**
+     * 验证测试方法传入参数准确性
+     * <p/>1、有浏览器、有数据
+     * <p/>2、有浏览器、无数据
+     * <p/>3、无浏览器、有数据
+     * <p/>4、无浏览器、无数据
+     *
+     * @param testMethod 测试方法
+     */
+    private boolean isPartOfFactoryTest(Method testMethod) {
+        int length = testMethod.getGenericParameterTypes().length;
+        if (length == 2 && testMethod.getGenericParameterTypes()[0].equals(IBrowserConfig.class) &&
+                testMethod.getGenericParameterTypes()[1].equals(IProperty.class))
+            return true;
+        else if (length == 1 && testMethod.getGenericParameterTypes()[0].equals(IBrowserConfig.class))
+            return true;
+        else if (length == 1 && testMethod.getGenericParameterTypes()[0].equals(IProperty.class))
+            return true;
+        else if (length == 0)
+            return true;
+        else
+            throw new FrameworkException("无法通过验证测试方法传入参数准确性");
     }
 
 }

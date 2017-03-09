@@ -48,6 +48,16 @@ public class DefaultBrowserConfig {
     }
 
     /**
+     * 删除浏览器默认配置，设置自定义属性
+     *
+     * @param prop 自定义属性
+     */
+    static void loadCustomPropertiesFile(IProperty prop) {
+        browserConf = null;
+        customProp = prop;
+    }
+
+    /**
      * 获取自定义属性
      *
      * @return 自定义属性
@@ -74,15 +84,5 @@ public class DefaultBrowserConfig {
         System.setProperty("confucian.report.coverage-report", "true");
         final String ESCAPE_PROPERTY = "confucian.report.escape-output";
         System.setProperty(ESCAPE_PROPERTY, "false");
-    }
-
-    /**
-     * 删除浏览器默认配置，设置自定义属性
-     *
-     * @param prop 自定义属性
-     */
-    static void loadCustomPropertiesFile(IProperty prop) {
-        browserConf = null;
-        customProp = prop;
     }
 }

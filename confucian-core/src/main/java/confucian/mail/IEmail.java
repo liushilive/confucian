@@ -13,6 +13,7 @@ interface IEmail {
      * 删除消息
      *
      * @param message 信息
+     *
      * @return boolean
      */
     boolean deleteMessage(Message message);
@@ -23,6 +24,7 @@ interface IEmail {
      * @param searchCat  {@link FilterEmails}
      * @param messages   消息
      * @param filterText 过滤文本
+     *
      * @return list
      */
     List<Message> filterEmailsBy(FilterEmails searchCat, List<Message> messages, String filterText);
@@ -31,6 +33,7 @@ interface IEmail {
      * 获取邮件正文
      *
      * @param message 信息
+     *
      * @return 电子邮件正文
      */
     String getEmailBody(Message message);
@@ -40,6 +43,7 @@ interface IEmail {
      *
      * @param searchCat  {@link FilterEmails}
      * @param filterText 过滤文本
+     *
      * @return 电子邮件
      */
     List<Message> getEmailsBy(FilterEmails searchCat, String filterText);
@@ -49,6 +53,7 @@ interface IEmail {
      *
      * @param message                        从HTML链接解析消息
      * @param textAfterWhichToFetchHtmlLinks 搜索HTML链接后的文本
+     *
      * @return Html链接在电子邮件的正文文本
      */
     String getHTMLLinkAfterText(Message message, String textAfterWhichToFetchHtmlLinks);
@@ -57,6 +62,7 @@ interface IEmail {
      * 获取邮件格式
      *
      * @param msg 消息
+     *
      * @return 邮件格式
      */
     String getMailFormat(Message msg);
@@ -73,6 +79,7 @@ interface IEmail {
      *
      * @param message       信息
      * @param patterToMatch 要匹配的字符序列
+     *
      * @return boolean
      */
     boolean verifyPatternInEmail(Message message, String patterToMatch);

@@ -31,14 +31,6 @@ class ValidateBrowserRules {
     }
 
     /**
-     * 验证
-     */
-    void validate() {
-        checkAndThrowExceptionForLocalBrowser();
-        checkAndThrowExceptionForRemote();
-    }
-
-    /**
      * 检查并抛出异常：本地浏览器
      */
     private void checkAndThrowExceptionForLocalBrowser() {
@@ -56,6 +48,15 @@ class ValidateBrowserRules {
     }
 
     /**
+     * 检查并抛出异常：Selenium Grid
+     */
+    private void checkAndThrowExceptionForRemote() {
+        if (browserConf.isRemoteFlag() && browserConf.getRemoteURL().isEmpty())
+            exceptionMessage.append("远程标志启用 , 请设置 remoteURL");
+        throwExceptionIfAny();
+    }
+
+    /**
      * 抛出所有异常
      */
     private void throwExceptionIfAny() {
@@ -66,12 +67,11 @@ class ValidateBrowserRules {
     }
 
     /**
-     * 检查并抛出异常：Selenium Grid
+     * 验证
      */
-    private void checkAndThrowExceptionForRemote() {
-        if (browserConf.isRemoteFlag() && browserConf.getRemoteURL().isEmpty())
-            exceptionMessage.append("远程标志启用 , 请设置 remoteURL");
-        throwExceptionIfAny();
+    void validate() {
+        checkAndThrowExceptionForLocalBrowser();
+        checkAndThrowExceptionForRemote();
     }
 
 }

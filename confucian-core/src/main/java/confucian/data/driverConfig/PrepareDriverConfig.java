@@ -66,20 +66,18 @@ public class PrepareDriverConfig {
      */
     public PrepareDriverConfig refineBrowserValues() {
         for (DriverConfigurations.LocalEnvironmentConfig localConfig : DriverConfigurations.LocalEnvironmentConfig
-                .values()) {
+                .values())
             updateRefinedMap(localConfig.toString(), rbc.get(localConfig.toString(), localConfig.get()));
-        }
 
-        for (DriverConfigurations.HubConfig hubConfig : DriverConfigurations.HubConfig.values()) {
+        for (DriverConfigurations.HubConfig hubConfig : DriverConfigurations.HubConfig.values())
             updateRefinedMap(hubConfig.toString(), rbc.get(hubConfig.toString(), hubConfig.get()));
-        }
 
-        for (DriverConfigurations.FrameworkConfig frameworkConfig : DriverConfigurations.FrameworkConfig.values()) {
+        for (DriverConfigurations.FrameworkConfig frameworkConfig : DriverConfigurations.FrameworkConfig.values())
             updateRefinedMap(frameworkConfig.toString(), rbc.get(frameworkConfig.toString(), frameworkConfig.get()));
-        }
 
+        for (DriverConfigurations.FrameworkConfig frameworkConfig : DriverConfigurations.FrameworkConfig.values())
+            updateRefinedMap(frameworkConfig.toString(), rbc.get(frameworkConfig.toString(), frameworkConfig.get()));
         return this;
-
     }
 
     private void updateRefinedMap(String key, String refinedValue) {

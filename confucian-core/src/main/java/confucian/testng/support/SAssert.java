@@ -18,17 +18,17 @@ import confucian.driver.DriverUtility;
  * 断言类
  */
 public class SAssert extends Assertion {
-    private static final Logger LOGGER = LogManager.getLogger();
     /**
      * The constant assertMap.
      */
-    public static ThreadLocal<LinkedHashMap<IAssert, String>> assertMap =
+    public static final ThreadLocal<LinkedHashMap<IAssert, String>> assertMap =
             ThreadLocal.withInitial(LinkedHashMap::new);
     /**
      * The constant m_errors.
      */
-    public static ThreadLocal<LinkedHashMap<AssertionError, IAssert>> m_errors =
+    public static final ThreadLocal<LinkedHashMap<AssertionError, IAssert>> m_errors =
             ThreadLocal.withInitial(LinkedHashMap::new);
+    private static final Logger LOGGER = LogManager.getLogger();
 
     /**
      * 执行所有断言
@@ -73,6 +73,6 @@ public class SAssert extends Assertion {
 
     @Override
     public void onAfterAssert(IAssert<?> assertCommand) {
-        LOGGER.info("断言：  " + assertCommand.getMessage() + " - " + assertCommand.getActual());
+        // LOGGER.info("断言：  " + assertCommand.getMessage() + " - " + assertCommand.getActual());
     }
 }

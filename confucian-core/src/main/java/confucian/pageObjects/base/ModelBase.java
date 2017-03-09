@@ -16,9 +16,7 @@ public class ModelBase {
      * @param parent the parent
      */
     protected ModelBase(WebElement parent) {
-        DriverUtility.waitForLoad(parent, 60, "");
-        SearchContextElementLocatorFactory elementLocatorFactory = new SearchContextElementLocatorFactory(parent);
-        PageFactory.initElements(elementLocatorFactory, this);
+        PageFactory.initElements(new SearchContextElementLocatorFactory(parent), this);
     }
 
     /**

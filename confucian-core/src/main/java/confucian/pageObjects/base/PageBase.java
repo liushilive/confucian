@@ -34,7 +34,7 @@ public class PageBase {
      * @param pageName   the page name
      */
     protected void isLoaded(WebElement webElement, String pageName) {
-        DriverUtility.switchToDefaultFrame();
+        DriverUtility.switchToDefaultContent();
         DriverUtility.waitForLoad(webElement, 60, pageName);
     }
 

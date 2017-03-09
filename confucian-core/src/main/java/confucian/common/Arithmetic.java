@@ -5,11 +5,11 @@ import java.math.BigDecimal;
 /**
  * double算术运算
  */
-public class Arithmetic {
-    private static final int DEF_DIV_SCALE = 2;
-
-    private Arithmetic() {
-    }
+public interface Arithmetic {
+    /**
+     * The constant DEF_DIV_SCALE.
+     */
+    int DEF_DIV_SCALE = 2;
 
     /**
      * 加
@@ -17,17 +17,12 @@ public class Arithmetic {
      * @param v1 the v 1
      * @param v2 the v 2
      * @param v3 the v 3
+     *
      * @return the double
      */
-    public static double add(double v1, double v2, double... v3) {
-        BigDecimal b1 = new BigDecimal(Double.toString(v1));
-        BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        BigDecimal b;
-        b = b1.add(b2);
-        for (double v : v3) {
-            BigDecimal x = new BigDecimal(Double.toString(v));
-            b = b.add(x);
-        }
+    static double add(double v1, double v2, double... v3) {
+        BigDecimal b = getBigDecimal(v1).add(getBigDecimal(v2));
+        for (double v : v3) b = getBigDecimal(v).add(b);
         return b.doubleValue();
     }
 
@@ -37,13 +32,12 @@ public class Arithmetic {
      * @param v1 the v 1
      * @param v2 the v 2
      * @param v3 the v 3
+     *
      * @return the double
      */
-    public static double div(double v1, double v2, double... v3) {
+    static double div(double v1, double v2, double... v3) {
         double b = div(v1, v2, DEF_DIV_SCALE);
-        for (double v : v3) {
-            b = div(b, v, DEF_DIV_SCALE);
-        }
+        for (double v : v3) b = div(b, v, DEF_DIV_SCALE);
         return b;
     }
 
@@ -53,15 +47,23 @@ public class Arithmetic {
      * @param v1    the v 1
      * @param v2    the v 2
      * @param scale the scale
+     *
      * @return the double
      */
-    public static double div(double v1, double v2, int scale) {
-        if (scale < 0) {
-            throw new IllegalArgumentException("小数位数必须是正整数或零");
-        }
-        BigDecimal b1 = new BigDecimal(Double.toString(v1));
-        BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+    static double div(double v1, double v2, int scale) {
+        if (scale < 0) throw new IllegalArgumentException("小数位数必须是正整数或零");
+        return getBigDecimal(v1).divide(getBigDecimal(v2), scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+    /**
+     * Gets big decimal.
+     *
+     * @param value the value
+     *
+     * @return the big decimal
+     */
+    static BigDecimal getBigDecimal(double value) {
+        return new BigDecimal(Double.toString(value));
     }
 
     /**
@@ -70,17 +72,13 @@ public class Arithmetic {
      * @param v1 the v 1
      * @param v2 the v 2
      * @param v3 the v 3
+     *
      * @return the double
      */
-    public static double mul(double v1, double v2, double... v3) {
+    static double mul(double v1, double v2, double... v3) {
         BigDecimal b;
-        BigDecimal b1 = new BigDecimal(Double.toString(v1));
-        BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        b = b1.multiply(b2);
-        for (double v : v3) {
-            BigDecimal x = new BigDecimal(Double.toString(v));
-            b = b.multiply(x);
-        }
+        b = getBigDecimal(v1).multiply(getBigDecimal(v2));
+        for (double v : v3) b = b.multiply(getBigDecimal(v));
         return b.doubleValue();
     }
 
@@ -89,15 +87,12 @@ public class Arithmetic {
      *
      * @param v     the v
      * @param scale the scale
+     *
      * @return the double
      */
-    public static double round(double v, int scale) {
-        if (scale < 0) {
-            throw new IllegalArgumentException("小数位数必须是正整数或零");
-        }
-        BigDecimal b = new BigDecimal(Double.toString(v));
-        BigDecimal one = new BigDecimal("1");
-        return b.divide(one, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+    static double round(double v, int scale) {
+        if (scale < 0) throw new IllegalArgumentException("小数位数必须是正整数或零");
+        return getBigDecimal(v).divide(new BigDecimal("1"), scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     /**
@@ -106,17 +101,12 @@ public class Arithmetic {
      * @param v1 the v 1
      * @param v2 the v 2
      * @param v3 the v 3
+     *
      * @return the double
      */
-    public static double sub(double v1, double v2, double... v3) {
-        BigDecimal b1 = new BigDecimal(Double.toString(v1));
-        BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        BigDecimal b;
-        b = b1.subtract(b2);
-        for (double v : v3) {
-            BigDecimal x = new BigDecimal(Double.toString(v));
-            b = b.subtract(x);
-        }
+    static double sub(double v1, double v2, double... v3) {
+        BigDecimal b = getBigDecimal(v1).subtract(getBigDecimal(v2));
+        for (double v : v3) b = b.subtract(getBigDecimal(v));
         return b.doubleValue();
     }
 }

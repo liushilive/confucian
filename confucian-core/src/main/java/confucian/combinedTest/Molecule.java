@@ -18,13 +18,6 @@ class Molecule {
     }
 
     @Override
-    public int hashCode() {
-        return atoms != null ?
-                Arrays.hashCode(atoms) :
-                0;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -37,6 +30,13 @@ class Molecule {
         return atoms != null ?
                 Arrays.equals(atoms, that.getAtoms()) :
                 that.getAtoms() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return atoms != null ?
+                Arrays.hashCode(atoms) :
+                0;
     }
 
     @Override

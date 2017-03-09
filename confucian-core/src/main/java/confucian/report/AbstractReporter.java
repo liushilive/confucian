@@ -55,40 +55,13 @@ abstract class AbstractReporter implements IReporter {
         }
     }
 
-
-    /**
-     * Helper method that creates a Velocity context and initialises it
-     * with a reference to the ReportNG utils, report metadata and localised messages.
-     *
-     * @return An initialised Velocity context.
-     */
-    VelocityContext createContext() {
-        VelocityContext context = new VelocityContext();
-        context.put(META_KEY, META);
-        context.put(UTILS_KEY, UTILS);
-        context.put(MESSAGES_KEY, MESSAGES);
-        return context;
-    }
-
-
-    /**
-     * Generate the specified output file by merging the specified
-     * Velocity template with the supplied context.
-     */
-    void generateFile(File file, String templateName, VelocityContext context) throws Exception {
-        try (Writer writer = new BufferedWriter(new FileWriter(file))) {
-            Velocity.mergeTemplate(classpathPrefix + templateName, ENCODING, context, writer);
-            writer.flush();
-        }
-    }
-
-
     /**
      * Copy a single named resource from the classpath to the output directory.
      *
      * @param outputDirectory The destination directory for the copied resource.
      * @param resourceName    The filename of the resource.
      * @param targetFileName  The name of the file created in {@literal outputDirectory}.
+     *
      * @throws IOException If the resource cannot be copied.
      */
     void copyClasspathResource(File outputDirectory, String resourceName, String targetFileName)
@@ -98,21 +71,20 @@ abstract class AbstractReporter implements IReporter {
         copyStream(outputDirectory, resourceStream, targetFileName);
     }
 
-
     /**
      * Copy a single named file to the output directory.
      *
      * @param outputDirectory The destination directory for the copied resource.
      * @param sourceFile      The path of the file to copy.
      * @param targetFileName  The name of the file created in {@literal outputDirectory}.
+     *
      * @throws IOException If the file cannot be copied.
      */
     void copyFile(File outputDirectory, File sourceFile, String targetFileName) throws IOException {
-        try (InputStream fileStream = new FileInputStream(sourceFile)) {
-            copyStream(outputDirectory, fileStream, targetFileName);
-        }
-    }
+        InputStream fileStream = new FileInputStream(sourceFile);
+        copyStream(outputDirectory, fileStream, targetFileName);
 
+    }
 
     /**
      * Helper method to copy the contents of a stream to a file.
@@ -120,6 +92,7 @@ abstract class AbstractReporter implements IReporter {
      * @param outputDirectory The directory in which the new file is created.
      * @param stream          The stream to copy.
      * @param targetFileName  The file to write the stream contents to.
+     *
      * @throws IOException If the stream cannot be copied.
      */
     void copyStream(File outputDirectory, InputStream stream, String targetFileName) throws IOException {
@@ -147,6 +120,30 @@ abstract class AbstractReporter implements IReporter {
         }
     }
 
+    /**
+     * Helper method that creates a Velocity context and initialises it
+     * with a reference to the ReportNG utils, report metadata and localised messages.
+     *
+     * @return An initialised Velocity context.
+     */
+    VelocityContext createContext() {
+        VelocityContext context = new VelocityContext();
+        context.put(META_KEY, META);
+        context.put(UTILS_KEY, UTILS);
+        context.put(MESSAGES_KEY, MESSAGES);
+        return context;
+    }
+
+    /**
+     * Generate the specified output file by merging the specified
+     * Velocity template with the supplied context.
+     */
+    void generateFile(File file, String templateName, VelocityContext context) throws Exception {
+        Writer writer = new BufferedWriter(new FileWriter(file));
+        Velocity.mergeTemplate(classpathPrefix + templateName, ENCODING, context, writer);
+        writer.flush();
+
+    }
 
     /**
      * Deletes any empty directories under the output directory.  These

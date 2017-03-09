@@ -1,12 +1,10 @@
 package confucian.data;
 
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,7 +45,6 @@ public class PropertyMapping implements IProperty {
 
     @SuppressWarnings("unused")
     private PropertyMapping() {
-
     }
 
     /**
@@ -79,45 +76,8 @@ public class PropertyMapping implements IProperty {
         propertiesValue = data;
     }
 
-    /**
-     * 为所有已加载的属性文件创建散列映射
-     *
-     * @param prop 属性
-     */
-    private void createHashMap(Properties prop) {
-        String key;
-        for (Object o : prop.keySet()) {
-            key = (String) o;
-            propertiesValue.put(key, prop.getProperty(key));
-        }
-    }
-
-    /**
-     * 加载文件
-     *
-     * @param filePath 文件路径
-     */
-    private void loadFile(String filePath) {
-        try {
-            fis = new FileInputStream(new File(filePath));
-            prop.load(fis);
-            fis.close();
-            createHashMap(prop);
-        } catch (IOException | NullPointerException e) {
-            LOGGER.error(e);
-        } finally {
-            IOUtils.closeQuietly(fis);
-        }
-    }
-
-    /**
-     * 获取Node的Name属性值
-     *
-     * @param typeName the type name
-     * @return Nodes的Name属性值List node name
-     */
-    public List<String> getNodeName(String typeName) {
-        return Utils.getSplitList(getValue(typeName, "node"), "->");
+    public Set<String> getKeys() {
+        return propertiesValue.keySet();
     }
 
     /**
@@ -125,6 +85,7 @@ public class PropertyMapping implements IProperty {
      *
      * @param typeName  the type name
      * @param NodesName the nodes name
+     *
      * @return Nodes的Name属性值List node name
      */
     public List<String> getNodeName(String typeName, String NodesName) {
@@ -132,9 +93,21 @@ public class PropertyMapping implements IProperty {
     }
 
     /**
+     * 获取Node的Name属性值
+     *
+     * @param typeName the type name
+     *
+     * @return Nodes的Name属性值List node name
+     */
+    public List<String> getNodeName(String typeName) {
+        return Utils.getSplitList(getValue(typeName, "node"), "->");
+    }
+
+    /**
      * 获取Nodes的Name属性值
      *
      * @param typeName the type name
+     *
      * @return Nodes的Name属性值List nodes name
      */
     public List<String> getNodesName(String typeName) {
@@ -160,10 +133,33 @@ public class PropertyMapping implements IProperty {
     }
 
     /**
+     * 返回key的值
+     *
+     * @param keys keys
+     *
+     * @return value
+     */
+    public String getValue(String... keys) {
+        Joiner joiner = Joiner.on("->").skipNulls();
+        String key = joiner.join(keys);
+        try {
+            String value = propertiesValue.get(key);
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            return value;
+        } catch (NullPointerException e) {
+            LOGGER.warn("在数据文件中没有指定的 Key = " + key, e);
+            return null;
+        }
+    }
+
+    /**
      * 获取值
      *
      * @param <E> 类型参数
      * @param key 枚举值
+     *
      * @return {@code <E extends Enum<E>>} 限定形态参数实例化的对象，只能是Enum
      */
     public <E extends Enum<E>> String getValue(E key) {
@@ -178,84 +174,6 @@ public class PropertyMapping implements IProperty {
         } catch (NullPointerException e) {
             LOGGER.error("在数据文件中没有指定的 Key = " + key, e);
             return null;
-        }
-    }
-
-    /**
-     * 返回key的值
-     *
-     * @param keys keys
-     * @return value
-     */
-    public String getValue(String key1, String... keys) {
-        String key = key1;
-        for (String k : keys) {
-            key = StringUtils.isBlank(key) ? k : key + "->" + k;
-        }
-        String value;
-        try {
-            value = propertiesValue.get(key);
-            if (value == null) {
-                throw new NullPointerException();
-            }
-            return value;
-        } catch (NullPointerException e) {
-            LOGGER.error("在数据文件中没有指定的 Key = " + key, e);
-            return null;
-        }
-    }
-
-    /**
-     * 按规则返回key的值,命名为第一个key+从1开始的整数。第二个参数开始为第一个参数的下级
-     *
-     * @param keys keys
-     * @return valueList
-     */
-    public Multimap<String, Map<String, String>> getValueList(String key, String... keys) {
-        Multimap<String, Map<String, String>> valueList = ArrayListMultimap.create();
-        for (int i = 0; true; i++) {
-            String keyT = key;
-            for (String k : keys) {
-                String value;
-                if (i != 0)
-                    keyT = key + i;
-                value = propertiesValue.get(keyT + "->" + k);
-
-                if (value == null)
-                    if (i == 0)
-                        continue;
-                    else
-                        return valueList;
-                Map<String, String> map = Maps.newHashMap();
-                map.put(k, value);
-                valueList.put(keyT, map);
-            }
-        }
-    }
-
-    /**
-     * 比较枚举与属性文件，防止运行时为NUll
-     */
-    @SuppressWarnings("unused")
-    private <E extends Enum<E>> void checkEnumMapping(E key) {
-        String lineSeparator = System.getProperty("line.separator");
-        if (!classEnumCheck.contains(key.getClass().getName())) {
-            Set<String> misMatchEnum = newHashSet();
-            for (Enum<?> value : key.getClass().getEnumConstants()) {
-                if (propertiesValue.get(value.toString()) == null) {
-                    misMatchEnum
-                            .add("加载文件中不存在 KEY = " + value.toString() + " 在 class=" + key.getClass().getName() + " 中");
-                }
-            }
-            if (!misMatchEnum.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                for (String aMisMatchEnum : misMatchEnum) {
-                    sb.append(aMisMatchEnum);
-                    sb.append(lineSeparator);
-                }
-                throw new FrameworkException(sb.toString());
-            }
-            classEnumCheck.add(key.getClass().getName());
         }
     }
 
@@ -293,5 +211,62 @@ public class PropertyMapping implements IProperty {
         sb.append("<div id='testData").append(randomNum).append("' style='display:none'>").append(newSb.toString())
                 .append("</div>");
         return sb.toString();
+    }
+
+    /**
+     * 比较枚举与属性文件，防止运行时为NUll
+     */
+    @SuppressWarnings("unused")
+    private <E extends Enum<E>> void checkEnumMapping(E key) {
+        String lineSeparator = System.getProperty("line.separator");
+        if (!classEnumCheck.contains(key.getClass().getName())) {
+            Set<String> misMatchEnum = newHashSet();
+            for (Enum<?> value : key.getClass().getEnumConstants()) {
+                if (propertiesValue.get(value.toString()) == null) {
+                    misMatchEnum
+                            .add("加载文件中不存在 KEY = " + value.toString() + " 在 class=" + key.getClass().getName() + " 中");
+                }
+            }
+            if (!misMatchEnum.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                for (String aMisMatchEnum : misMatchEnum) {
+                    sb.append(aMisMatchEnum);
+                    sb.append(lineSeparator);
+                }
+                throw new FrameworkException(sb.toString());
+            }
+            classEnumCheck.add(key.getClass().getName());
+        }
+    }
+
+    /**
+     * 为所有已加载的属性文件创建散列映射
+     *
+     * @param prop 属性
+     */
+    private void createHashMap(Properties prop) {
+        String key;
+        for (Object o : prop.keySet()) {
+            key = (String) o;
+            propertiesValue.put(key, prop.getProperty(key));
+        }
+    }
+
+    /**
+     * 加载文件
+     *
+     * @param filePath 文件路径
+     */
+    private void loadFile(String filePath) {
+        try {
+            fis = new FileInputStream(new File(filePath));
+            prop.load(fis);
+            fis.close();
+            createHashMap(prop);
+        } catch (IOException | NullPointerException e) {
+            LOGGER.error(e);
+        } finally {
+            IOUtils.closeQuietly(fis);
+        }
     }
 }

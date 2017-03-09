@@ -1,10 +1,12 @@
 package confucian.data.driverConfig;
 
+import org.openqa.selenium.remote.BrowserType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.Map;
 
 import confucian.data.DriverConfigurations;
+import confucian.driver.Driver;
 
 /**
  * 浏览器配置
@@ -34,20 +36,6 @@ public class BrowserConfig implements IBrowserConfig {
         this.desiredCapabilities = desiredCapabilities;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-
-        if (this.isRemoteFlag()) {
-
-            hash = 31 * hash + this.getBrowser().hashCode();
-            hash = 31 * hash + this.getCapabilities().hashCode();
-        } else {
-            hash = 31 * hash + this.getBrowser().hashCode();
-        }
-        return hash;
-    }
-
     /**
      * 如果 isRemoteFlag = false ,比较 BrowserName；
      * 如果为true，那么需要功能与浏览器名称相同。
@@ -70,22 +58,6 @@ public class BrowserConfig implements IBrowserConfig {
             }
         }
         return false;
-    }
-
-    /**
-     * 执行字符串表示为Html报告
-     */
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("浏览器:" + "<span style='font-weight:normal'>").append(getBrowser()).append("</span>");
-        sb.append(", 功能:" + "<span style='font-weight:normal'>").append(this.getCapabilities().toString())
-                .append("</span>");
-        if (isRemoteFlag()) {
-            sb.append(",是否远程:" + "<span style='font-weight:normal'>").append(isRemoteFlag()).append("</span>");
-            sb.append(",远程URL:" + "<span style='font-weight:normal'>").append(getRemoteURL()).append("</span>");
-        }
-        return sb.toString();
     }
 
     public String getBrowser() {
@@ -121,8 +93,23 @@ public class BrowserConfig implements IBrowserConfig {
         return Integer.valueOf(mappedValues.get(DriverConfigurations.FrameworkConfig.retryFailedTestCase.toString()));
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+
+        if (this.isRemoteFlag()) {
+
+            hash = 31 * hash + this.getBrowser().hashCode();
+            hash = 31 * hash + this.getCapabilities().hashCode();
+        } else {
+            hash = 31 * hash + this.getBrowser().hashCode();
+        }
+        return hash;
+    }
+
     public boolean isHighLightElementFlag() {
-        return Boolean.valueOf(mappedValues.get(DriverConfigurations.FrameworkConfig.highlightElementFlag.toString()));
+        boolean isHtmlUnit = Driver.getBrowserConfig().getBrowser().equalsIgnoreCase(BrowserType.HTMLUNIT);
+        return isHtmlUnit ? false : Boolean.valueOf(mappedValues.get(DriverConfigurations.FrameworkConfig.highlightElementFlag.toString()));
     }
 
     public boolean isRemoteFlag() {
@@ -130,7 +117,8 @@ public class BrowserConfig implements IBrowserConfig {
     }
 
     public boolean isScreenShotFlag() {
-        return Boolean.valueOf(mappedValues.get(DriverConfigurations.FrameworkConfig.screenShotFlag.toString()));
+        boolean isHtmlUnit = Driver.getBrowserConfig().getBrowser().equalsIgnoreCase(BrowserType.HTMLUNIT);
+        return isHtmlUnit ? false : Boolean.valueOf(mappedValues.get(DriverConfigurations.FrameworkConfig.screenShotFlag.toString()));
     }
 
     /**
@@ -140,13 +128,30 @@ public class BrowserConfig implements IBrowserConfig {
      */
     @Override
     public boolean isScrollElementFlag() {
-        return Boolean.valueOf(mappedValues.
+        boolean isHtmlUnit = Driver.getBrowserConfig().getBrowser().equalsIgnoreCase(BrowserType.HTMLUNIT);
+        return isHtmlUnit ? false : Boolean.valueOf(mappedValues.
                 get(DriverConfigurations.FrameworkConfig.scrollElementFlag.toString()));
     }
 
     @Override
     public String remoteURL() {
         return mappedValues.get(DriverConfigurations.HubConfig.remoteURL.toString());
+    }
+
+    /**
+     * 执行字符串表示为Html报告
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("浏览器:" + "<span style='font-weight:normal'>").append(getBrowser()).append("</span>");
+        sb.append(", 功能:" + "<span style='font-weight:normal'>").append(this.getCapabilities().toString())
+                .append("</span>");
+        if (isRemoteFlag()) {
+            sb.append(",是否远程:" + "<span style='font-weight:normal'>").append(isRemoteFlag()).append("</span>");
+            sb.append(",远程URL:" + "<span style='font-weight:normal'>").append(getRemoteURL()).append("</span>");
+        }
+        return sb.toString();
     }
 
     @Override

@@ -13,7 +13,6 @@ import confucian.data.driverConfig.IBrowserConfig;
  * 驱动程序类，返回Web驱动程序特定的配置
  */
 public class Driver {
-
     private static final Logger LOGGER = LogManager.getLogger();
     /**
      * 浏览器配置
@@ -23,6 +22,9 @@ public class Driver {
      * 浏览器驱动
      */
     static InheritableThreadLocal<WebDriver> driver = new InheritableThreadLocal<>();
+
+    private Driver() {
+    }
 
     /**
      * 获取浏览器驱动配置
@@ -46,12 +48,17 @@ public class Driver {
     }
 
     /**
-     * 设置浏览器驱动值
+     * 获取浏览器驱动程序实例为特定的配置
+     *
+     * @param iBrowserConfig 浏览器驱动配置
+     *
+     * @return {@link WebDriver}
      */
-    private static void setDriverValue() {
-        browserConfig.set(DefaultBrowserConfig.get());
-        DriverFactory df = new DriverFactory(DefaultBrowserConfig.get());
-        driver.set(df.initializeDriver());
+    public static WebDriver getDriver(IBrowserConfig iBrowserConfig) {
+        if (driverRemovedStatus()) {
+            setDriverValue(iBrowserConfig);
+        }
+        return driver.get();
     }
 
     /**
@@ -90,30 +97,6 @@ public class Driver {
     }
 
     /**
-     * 获取浏览器驱动程序实例为特定的配置
-     *
-     * @param iBrowserConfig 浏览器驱动配置
-     * @return {@link WebDriver}
-     */
-    public static WebDriver getDriver(IBrowserConfig iBrowserConfig) {
-        if (driverRemovedStatus()) {
-            setDriverValue(iBrowserConfig);
-        }
-        return driver.get();
-    }
-
-    /**
-     * 设置浏览器驱动值
-     *
-     * @param b_conf 驱动配置
-     */
-    private static void setDriverValue(IBrowserConfig b_conf) {
-        browserConfig.set(b_conf);
-        DriverFactory df = new DriverFactory(b_conf);
-        driver.set(df.initializeDriver());
-    }
-
-    /**
      * 卸载当前驱动
      */
     static void tearDown() {
@@ -131,5 +114,25 @@ public class Driver {
         } catch (Exception e) {
             LOGGER.error("卸载驱动异常::", e);
         }
+    }
+
+    /**
+     * 设置浏览器驱动值
+     */
+    private static void setDriverValue() {
+        browserConfig.set(DefaultBrowserConfig.get());
+        DriverFactory df = new DriverFactory(DefaultBrowserConfig.get());
+        driver.set(df.initializeDriver());
+    }
+
+    /**
+     * 设置浏览器驱动值
+     *
+     * @param b_conf 驱动配置
+     */
+    private static void setDriverValue(IBrowserConfig b_conf) {
+        browserConfig.set(b_conf);
+        DriverFactory df = new DriverFactory(b_conf);
+        driver.set(df.initializeDriver());
     }
 }

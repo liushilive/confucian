@@ -51,51 +51,27 @@ public class MappingParserRevisit implements IDataSource {
     }
 
     /**
-     * 获取映射文件
-     *
-     * @return 映射文件
-     */
-    private static String getMappingFile() {
-        if (StringUtils.isBlank(getCalcValue("mappingfile"))) {
-            return "Mapping.xml";
-        }
-        return getCalcValue("mappingfile");
-    }
-
-    private static String getCalcValue(String key) {
-        if (StringUtils.isNotBlank(System.getProperty(key))) {
-            return System.getProperty(key);
-        } else {
-            return getFrameworkPropertyValue(key);
-        }
-    }
-
-    private static String getFrameworkPropertyValue(String key) {
-        PropertyValueMin prop;
-        if (isFrameworkProperties()) {
-            prop = new PropertyValueMin(Utils.getResources("Framework.properties"));
-            return prop.getValue(key);
-        } else {
-            return "";
-        }
-    }
-
-    /**
-     * 框架属性文件是否存在：Framework.properties
-     *
-     * @return true or false
-     */
-    private static boolean isFrameworkProperties() {
-        return Utils.getResources("Framework.properties") != null;
-    }
-
-    /**
      * 获取版本号
      *
      * @return 内部版本号 build number
      */
     public static String getBuildNumber() {
         return getCalcValue("buildNumber");
+    }
+
+    /**
+     * 获取框架资源文件值
+     *
+     * @param key the key
+     *
+     * @return the calc value
+     */
+    public static String getCalcValue(String key) {
+        if (StringUtils.isNotBlank(System.getProperty(key))) {
+            return System.getProperty(key);
+        } else {
+            return getFrameworkPropertyValue(key);
+        }
     }
 
     /**
@@ -107,21 +83,8 @@ public class MappingParserRevisit implements IDataSource {
         if (StringUtils.isNotBlank(getCalcValue("projectName"))) {
             return getCalcValue("projectName");
         } else {
-            return SuiteConfiguration.suiteName;
+            return SuiteConfiguration.getSuiteName();
         }
-    }
-
-    /**
-     * 获取{@link IMappingData} 从任何输入的数据源
-     *
-     * @param element element
-     * @return IMappingData
-     */
-    private IMappingData getMapping(Element element) {
-        return new ImplementIMap.Builder().withRunStrategy(element.getAttribute("runStrategy"))
-                .withTestData(element.getAttribute("testData"))
-                .withClientEnvironment(Utils.getSplitList(element.getAttribute("clientEnvironment"), DELIMITER))
-                .withDataProviderPath(element.getAttribute("testData")).build();
     }
 
     /**
@@ -143,6 +106,51 @@ public class MappingParserRevisit implements IDataSource {
     public String toString() {
         String xmlName = "";
         return "读取Xml文件的名称:" + xmlName;
+    }
+
+    private static String getFrameworkPropertyValue(String key) {
+        PropertyValueMin prop;
+        if (isFrameworkProperties()) {
+            prop = new PropertyValueMin(Utils.getResources("Framework.properties"));
+            return prop.getValue(key);
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * 获取映射文件
+     *
+     * @return 映射文件
+     */
+    private static String getMappingFile() {
+        if (StringUtils.isBlank(getCalcValue("mappingfile"))) {
+            return "Mapping.xml";
+        }
+        return getCalcValue("mappingfile");
+    }
+
+    /**
+     * 框架属性文件是否存在：Framework.properties
+     *
+     * @return true or false
+     */
+    private static boolean isFrameworkProperties() {
+        return Utils.getResources("Framework.properties") != null;
+    }
+
+    /**
+     * 获取{@link IMappingData} 输入的数据源
+     *
+     * @param element element
+     *
+     * @return IMappingData
+     */
+    private IMappingData getMapping(Element element) {
+        return new ImplementIMap.Builder().withRunStrategy(element.getAttribute("runStrategy"))
+                .withTestData(element.getAttribute("testData"))
+                .withClientEnvironment(Utils.getSplitList(element.getAttribute("clientEnvironment"), DELIMITER))
+                .withDataProviderPath(element.getAttribute("testData")).build();
     }
 
     /**

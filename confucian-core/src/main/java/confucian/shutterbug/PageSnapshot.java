@@ -21,10 +21,53 @@ public class PageSnapshot extends Snapshot {
     }
 
     /**
+     * Blur the entire page.
+     *
+     * @return instance of type PageSnapshot
+     */
+    public PageSnapshot blur() {
+        image = ImageProcessor.blur(image);
+        return this;
+    }
+
+    /**
+     * Blur provided element within the page only.
+     *
+     * @param element WebElement to be blurred
+     *
+     * @return instance of type PageSnapshot
+     */
+    public PageSnapshot blur(WebElement element) {
+        try {
+            image = ImageProcessor.blurArea(image, new Coordinates(element));
+        } catch (RasterFormatException rfe) {
+            throw new FrameworkException(ELEMENT_OUT_OF_VIEWPORT_EX_MESSAGE, rfe);
+        }
+        return this;
+    }
+
+    /**
+     * Blurs all the page except the element provided.
+     *
+     * @param element WebElement to stay not blurred
+     *
+     * @return instance of type PageSnapshot
+     */
+    public PageSnapshot blurExcept(WebElement element) {
+        try {
+            image = ImageProcessor.blurExceptArea(image, new Coordinates(element));
+        } catch (RasterFormatException rfe) {
+            throw new FrameworkException(ELEMENT_OUT_OF_VIEWPORT_EX_MESSAGE, rfe);
+        }
+        return this;
+    }
+
+    /**
      * Highlights WebElement within the page with Color.red
      * and line width 3.
      *
      * @param element WebElement to be highlighted
+     *
      * @return instance of type PageSnapshot
      */
     public PageSnapshot highlight(WebElement element) {
@@ -43,6 +86,7 @@ public class PageSnapshot extends Snapshot {
      * @param element   WebElement to be highlighted
      * @param color     color of the line
      * @param lineWidth width of the line
+     *
      * @return instance of type PageSnapshot
      */
     public PageSnapshot highlight(WebElement element, Color color, int lineWidth) {
@@ -61,6 +105,7 @@ public class PageSnapshot extends Snapshot {
      * @param element WebElement to be highlighted with Color.red                and line width 3
      * @param text    test to be places above highlighted element with             Color.red, font
      *                "Serif", BOLD, size 20
+     *
      * @return instance of type PageSnapshot
      */
     public PageSnapshot highlightWithText(WebElement element, String text) {
@@ -81,6 +126,7 @@ public class PageSnapshot extends Snapshot {
      * @param text         text to be placed above the highlighted element
      * @param textColor    color of the text
      * @param textFont     text font
+     *
      * @return instance of type PageSnapshot
      */
     public PageSnapshot highlightWithText(WebElement element, Color elementColor, String text,
@@ -97,55 +143,16 @@ public class PageSnapshot extends Snapshot {
     }
 
     /**
-     * Blur the entire page.
-     *
-     * @return instance of type PageSnapshot
-     */
-    public PageSnapshot blur() {
-        image = ImageProcessor.blur(image);
-        return this;
-    }
-
-    /**
-     * Blur provided element within the page only.
-     *
-     * @param element WebElement to be blurred
-     * @return instance of type PageSnapshot
-     */
-    public PageSnapshot blur(WebElement element) {
-        try {
-            image = ImageProcessor.blurArea(image, new Coordinates(element));
-        } catch (RasterFormatException rfe) {
-            throw new FrameworkException(ELEMENT_OUT_OF_VIEWPORT_EX_MESSAGE, rfe);
-        }
-        return this;
-    }
-
-    /**
      * Makes an element withing a page 'monochrome' - applies gray-and-white filter.
      * Original colors remain on the rest of the page.
      *
      * @param element WebElement within the page to be made 'monochrome'
+     *
      * @return instance of type PageSnapshot
      */
     public PageSnapshot monochrome(WebElement element) {
         try {
             image = ImageProcessor.monochromeArea(image, new Coordinates(element));
-        } catch (RasterFormatException rfe) {
-            throw new FrameworkException(ELEMENT_OUT_OF_VIEWPORT_EX_MESSAGE, rfe);
-        }
-        return this;
-    }
-
-    /**
-     * Blurs all the page except the element provided.
-     *
-     * @param element WebElement to stay not blurred
-     * @return instance of type PageSnapshot
-     */
-    public PageSnapshot blurExcept(WebElement element) {
-        try {
-            image = ImageProcessor.blurExceptArea(image, new Coordinates(element));
         } catch (RasterFormatException rfe) {
             throw new FrameworkException(ELEMENT_OUT_OF_VIEWPORT_EX_MESSAGE, rfe);
         }

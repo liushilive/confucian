@@ -11,11 +11,16 @@
     <version>1.0.0</version>
     <description>父项目</description>
 
+    <modules>
+        <module>confucian-core</module>
+    </modules>
+
     <properties>
         <encoding>UTF-8</encoding>
         <jdk.version>1.8</jdk.version>
 
         <seleniumhq.version>3.0.1</seleniumhq.version>
+        <selendroid.version>0.17.0</selendroid.version>
         <testng.version>6.9.13.6</testng.version>
         <log4j.version>2.7</log4j.version>
         <mail.version>1.5.0-b01</mail.version>
@@ -23,19 +28,44 @@
         <jpinyin.version>1.1.7</jpinyin.version>
         <velocity.version>1.7</velocity.version>
         <commons.version>3.5</commons.version>
+        <HikariCP.version>2.5.1</HikariCP.version>
+        <mysql-connector.version>6.0.5</mysql-connector.version>
+        <univocity-parsers.version>2.3.0</univocity-parsers.version>
+        <gson.version>2.8.0</gson.version>
+        <client5.version>5.0-alpha1</client5.version>
     </properties>
-
-
-    <modules>
-        <module>confucian-core</module>
-    </modules>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${client5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.univocity</groupId>
+                <artifactId>univocity-parsers</artifactId>
+                <version>${univocity-parsers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${HikariCP.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-server</artifactId>
                 <version>${seleniumhq.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.selendroid</groupId>
+                <artifactId>selendroid-standalone</artifactId>
+                <version>${selendroid.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.selendroid</groupId>
+                <version>${selendroid.version}</version>
+                <artifactId>selendroid-client</artifactId>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
@@ -81,6 +111,16 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql-connector.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

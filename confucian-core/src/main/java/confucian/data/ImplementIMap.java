@@ -80,6 +80,7 @@ public class ImplementIMap implements IMappingData {
          * 客户端环境
          *
          * @param clientEData 客户端环境列表数据
+         *
          * @return this builder
          */
         public Builder withClientEnvironment(List<String> clientEData) {
@@ -91,6 +92,7 @@ public class ImplementIMap implements IMappingData {
          * 数据源文件
          *
          * @param dataProviderPath the data provider path
+         *
          * @return the builder
          */
         public Builder withDataProviderPath(String dataProviderPath) {
@@ -102,6 +104,7 @@ public class ImplementIMap implements IMappingData {
          * 运行策略
          *
          * @param runStrategy the run strategy
+         *
          * @return this builder
          */
         public Builder withRunStrategy(String runStrategy) {
@@ -119,6 +122,7 @@ public class ImplementIMap implements IMappingData {
          * 测试数据
          *
          * @param testData the test data
+         *
          * @return this builder
          */
         public Builder withTestData(String testData) {

@@ -34,13 +34,12 @@ public class Coordinates {
      * @param point the point
      * @param size  the size
      */
-    public Coordinates(Point point, Dimension size) {
+    Coordinates(Point point, Dimension size) {
         this.width = size.getWidth();
         this.height = size.getHeight();
         this.x = point.getX();
         this.y = point.getY();
     }
-
 
     /**
      * Gets width.
@@ -49,15 +48,6 @@ public class Coordinates {
      */
     public int getWidth() {
         return width;
-    }
-
-    /**
-     * Gets height.
-     *
-     * @return the height
-     */
-    public int getHeight() {
-        return height;
     }
 
     /**
@@ -76,5 +66,14 @@ public class Coordinates {
      */
     public int getY() {
         return y;
+    }
+
+    /**
+     * Gets height.
+     *
+     * @return the height
+     */
+    int getHeight() {
+        return height;
     }
 }

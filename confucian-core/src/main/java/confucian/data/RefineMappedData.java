@@ -31,40 +31,34 @@ class RefineMappedData {
     }
 
     /**
+     * 获取测试数据文件
+     */
+    private String getDataProviderPath(Method method) {
+        IMappingData methodDataProviderPath = primaryDataMap.get(Utils.getFullMethodName(method));
+        IMappingData classDataProviderPath = primaryDataMap.get(method.getDeclaringClass().getName());
+        IMappingData packageDataProviderPath = primaryDataMap.get(method.getDeclaringClass().getPackage().getName());
+        if (methodDataProviderPath != null && methodDataProviderPath.getDataProviderPath() != null) {
+            return methodDataProviderPath.getDataProviderPath();
+        } else if (classDataProviderPath != null && classDataProviderPath.getDataProviderPath() != null) {
+            return classDataProviderPath.getDataProviderPath();
+        } else if (packageDataProviderPath != null && packageDataProviderPath.getDataProviderPath() != null) {
+            return packageDataProviderPath.getDataProviderPath();
+        }
+        return null;
+    }
+
+    /**
      * 获取方法数据
      *
      * @param methodName the method name
+     *
      * @return method data
      */
     IMappingData getMethodData(Method methodName) {
-        //System.out.println(getRefinedClientEnvironment(methodName).get(0));
         return new ImplementIMap.Builder().withTestData(getRefinedTestData(methodName))
                 .withClientEnvironment(getRefinedClientEnvironment(methodName))
                 .withRunStrategy(getRunStrategy(methodName).toString())
                 .withDataProviderPath(getDataProviderPath(methodName)).build();
-    }
-
-    /**
-     * 获取测试数据
-     */
-    private String getRefinedTestData(Method method) {
-        IMappingData methodVal = primaryDataMap.get(Utils.getFullMethodName(method));
-        IMappingData classVal = primaryDataMap.get(method.getDeclaringClass().getName());
-        IMappingData packageVal = primaryDataMap.get(method.getDeclaringClass().getPackage().getName());
-
-        // if (methodVal != null && StringUtils.isNotBlank(methodVal.getTestData())) {
-        if (methodVal != null && (methodVal.getTestData() != null)) {
-            return methodVal.getTestData();
-            // } else if (classVal != null && StringUtils.isNotBlank(classVal.getTestData())) {
-        } else if (classVal != null && classVal.getTestData() != null) {
-            //System.out.println(classVal.getTestData());
-            return classVal.getTestData();
-            // } else if (packageVal != null && StringUtils.isNotBlank(packageVal.getTestData())) {
-        } else if (packageVal != null && packageVal.getTestData() != null) {
-            //	System.out.println(packageVal.getTestData());
-            return packageVal.getTestData();
-        }
-        throw new FrameworkException("没有定义测试数据的方法:" + method.getName() + "在映射或方法/类/包中缺少映射");
     }
 
     /**
@@ -78,18 +72,37 @@ class RefineMappedData {
         //如果列表第一条为0，可以肯定客户端环境为假列表
         if (methodClientData != null && !methodClientData.getClientEnvironment().isEmpty() &&
                 StringUtils.isNotBlank(methodClientData.getClientEnvironment().get(0))) {
-            System.out.println("方法:" + methodClientData.getClientEnvironment().get(0));
+            LOGGER.debug("方法:" + methodClientData.getClientEnvironment().get(0));
             return methodClientData.getClientEnvironment();
         } else if (classClientData != null && !classClientData.getClientEnvironment().isEmpty() &&
                 StringUtils.isNotBlank(classClientData.getClientEnvironment().get(0))) {
-            System.out.println("类" + classClientData.getClientEnvironment().get(0));
+            LOGGER.debug("类" + classClientData.getClientEnvironment().get(0));
             return classClientData.getClientEnvironment();
         } else if (packageClientData != null && !packageClientData.getClientEnvironment().isEmpty() &&
                 StringUtils.isNotBlank(packageClientData.getClientEnvironment().get(0))) {
-            System.out.println("包:" + packageClientData.getClientEnvironment().get(0));
+            LOGGER.debug("包:" + packageClientData.getClientEnvironment().get(0));
             return packageClientData.getClientEnvironment();
         }
-        throw new FrameworkException("没有客户端环境/浏览器定义的方法:" + method.getName() + "在映射或方法/类/包中缺少映射");
+        return null;
+        // throw new FrameworkException("没有客户端环境/浏览器定义的方法:" + method.getName() + "在映射或方法/类/包中缺少映射");
+    }
+
+    /**
+     * 获取测试数据
+     */
+    private String getRefinedTestData(Method method) {
+        IMappingData methodVal = primaryDataMap.get(Utils.getFullMethodName(method));
+        IMappingData classVal = primaryDataMap.get(method.getDeclaringClass().getName());
+        IMappingData packageVal = primaryDataMap.get(method.getDeclaringClass().getPackage().getName());
+
+        if (methodVal != null && (methodVal.getTestData() != null)) {
+            return methodVal.getTestData();
+        } else if (classVal != null && classVal.getTestData() != null) {
+            return classVal.getTestData();
+        } else if (packageVal != null && packageVal.getTestData() != null) {
+            return packageVal.getTestData();
+        }
+        throw new FrameworkException("没有定义测试数据的方法:" + method.getName() + "在映射或方法/类/包中缺少映射");
     }
 
     /**
@@ -107,22 +120,5 @@ class RefineMappedData {
             return packageRunStrategy.getRunStrategy();
         }
         return DataProvider.MapStrategy.Optimal;
-    }
-
-    /**
-     * 获取测试数据文件
-     */
-    private String getDataProviderPath(Method method) {
-        IMappingData methodDataProviderPath = primaryDataMap.get(Utils.getFullMethodName(method));
-        IMappingData classDataProviderPath = primaryDataMap.get(method.getDeclaringClass().getName());
-        IMappingData packageDataProviderPath = primaryDataMap.get(method.getDeclaringClass().getPackage().getName());
-        if (methodDataProviderPath != null && methodDataProviderPath.getDataProviderPath() != null) {
-            return methodDataProviderPath.getDataProviderPath();
-        } else if (classDataProviderPath != null && classDataProviderPath.getDataProviderPath() != null) {
-            return classDataProviderPath.getDataProviderPath();
-        } else if (packageDataProviderPath != null && packageDataProviderPath.getDataProviderPath() != null) {
-            return packageDataProviderPath.getDataProviderPath();
-        }
-        return null;
     }
 }

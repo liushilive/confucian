@@ -48,94 +48,6 @@ class PairwiseInventory implements IInventory {
     private int[][] unusedMoleculesSearch = null;
     private int[] unusedParameterIndexCounts;
 
-    @Override
-    public TestDataSet getTestDataSet() {
-        TestDataSet dataSet = new TestDataSet(this, scenario);
-        dataSet.buildTestCases();
-        // dataSet.logFullCombinationCount();
-        return dataSet;
-    }
-
-    @Override
-    public int numberMoleculesCaptured(int[] testSet) {
-        int moleculesCapturedCount = 0;
-        for (int i = 0; i <= testSet.length - 2; ++i)
-            for (int j = i + 1; j <= testSet.length - 1; ++j)
-                if (unusedMoleculesSearch[testSet[i]][testSet[j]] == 1)
-                    ++moleculesCapturedCount;
-        return moleculesCapturedCount;
-    }
-
-    @Override
-    public int[] getBestMolecule() {
-        // 通过循环使用未使用的组来加权对
-        int bestWeight = 0;
-        int indexOfBestMolecule = 0;
-        for (int unusedMoleculeIndex = 0; unusedMoleculeIndex < this.getUnusedMolecules().size();
-             unusedMoleculeIndex++) {
-            int[] curr = this.getUnusedMolecules().get(unusedMoleculeIndex).getAtoms();
-            int weight = this.getUnusedParameterIndexCounts()[curr[0]] + this.getUnusedParameterIndexCounts()[curr[1]];
-            LOGGER.debug(String.format("对 %d: [%s,%s], 权重: %2d", unusedMoleculeIndex,
-                    scenario.getParameterValues().get(curr[0]), scenario.getParameterValues().get(curr[1]), weight));
-
-            // 如果新对的权重高于前一个，使它成为新的“最佳”
-            if (weight > bestWeight) {
-                bestWeight = weight;
-                indexOfBestMolecule = unusedMoleculeIndex;
-            }
-        }
-
-        // 日志，并返回最佳的对
-        int[] best = this.getUnusedMolecules().get(indexOfBestMolecule).getAtoms();
-        LOGGER.debug(String.format("最佳对是 [%s, %s] 在 %d 权重 %d", scenario.getParameterValues().get(best[0]),
-                scenario.getParameterValues().get(best[1]), indexOfBestMolecule, bestWeight));
-        return best;
-    }
-
-    @Override
-    public void updateAllCounts(int[] bestTestSet) {
-        for (int i = 0; i <= scenario.getParameterSetCount() - 2; ++i) {
-            for (int j = i + 1; j <= scenario.getParameterSetCount() - 1; ++j) {
-                int v1 = bestTestSet[i]; // 新添加的值1对
-                int v2 = bestTestSet[j]; // 新添加的值2对
-
-                LOGGER.debug("调整未使用的计数 [{}][{}]", v1, v2);
-                --unusedParameterIndexCounts[v1];
-                --unusedParameterIndexCounts[v2];
-
-                LOGGER.debug("设置获取未使用的分子搜索在 [{}][{}] to 0", v1, v2);
-                this.getUnusedMoleculesSearch()[v1][v2] = 0;
-
-                // 设置未使用的分子的新列表，然后将其分配回未使用的Molecules字段 - 否则ConcurrentModificationException
-                List<Molecule> tempUnusedMolecules = new ArrayList<>();
-                tempUnusedMolecules.addAll(this.getUnusedMolecules());
-
-                for (Molecule molecule : this.getUnusedMolecules()) {
-                    int[] curr = molecule.getAtoms();
-
-                    if (curr[0] == v1 && curr[1] == v2) {
-                        LOGGER.debug("删除对 [{}, {}] 从未使用的分子列表中", v1, v2);
-                        tempUnusedMolecules.remove(molecule);
-                    }
-                }
-                this.unusedMolecules = tempUnusedMolecules;
-            }
-        }
-    }
-
-    @Override
-    public void processUnusedValues() {
-        // 索引是参数值，单元格值是参数值在analyzer.getUsedParts()集合中显示的次数的计数
-        int[] unusedCounts = new int[scenario.getParameterValuesCount()];
-        for (Molecule molecule : this.getAllMolecules()) {
-            ++unusedCounts[molecule.getAtoms()[0]];
-            ++unusedCounts[molecule.getAtoms()[1]];
-        }
-
-        this.logUnusedMolecules(unusedMolecules);
-        this.unusedParameterIndexCounts = unusedCounts;
-    }
-
     /**
      * 构建分子
      */
@@ -178,18 +90,34 @@ class PairwiseInventory implements IInventory {
     }
 
     @Override
-    public int[][] getUnusedMoleculesSearch() {
-        return unusedMoleculesSearch;
-    }
-
-    @Override
-    public List<Molecule> getUnusedMolecules() {
-        return unusedMolecules;
-    }
-
-    @Override
     public List<Molecule> getAllMolecules() {
         return allMolecules;
+    }
+
+    @Override
+    public int[] getBestMolecule() {
+        // 通过循环使用未使用的组来加权对
+        int bestWeight = 0;
+        int indexOfBestMolecule = 0;
+        for (int unusedMoleculeIndex = 0; unusedMoleculeIndex < this.getUnusedMolecules().size();
+             unusedMoleculeIndex++) {
+            int[] curr = this.getUnusedMolecules().get(unusedMoleculeIndex).getAtoms();
+            int weight = this.getUnusedParameterIndexCounts()[curr[0]] + this.getUnusedParameterIndexCounts()[curr[1]];
+            LOGGER.debug(String.format("对 %d: [%s,%s], 权重: %2d", unusedMoleculeIndex,
+                    scenario.getParameterValues().get(curr[0]), scenario.getParameterValues().get(curr[1]), weight));
+
+            // 如果新对的权重高于前一个，使它成为新的“最佳”
+            if (weight > bestWeight) {
+                bestWeight = weight;
+                indexOfBestMolecule = unusedMoleculeIndex;
+            }
+        }
+
+        // 日志，并返回最佳的对
+        int[] best = this.getUnusedMolecules().get(indexOfBestMolecule).getAtoms();
+        LOGGER.debug(String.format("最佳对是 [%s, %s] 在 %d 权重 %d", scenario.getParameterValues().get(best[0]),
+                scenario.getParameterValues().get(best[1]), indexOfBestMolecule, bestWeight));
+        return best;
     }
 
     @Override
@@ -203,8 +131,80 @@ class PairwiseInventory implements IInventory {
     }
 
     @Override
+    public TestDataSet getTestDataSet() {
+        TestDataSet dataSet = new TestDataSet(this, scenario);
+        dataSet.buildTestCases();
+        // dataSet.logFullCombinationCount();
+        return dataSet;
+    }
+
+    @Override
+    public List<Molecule> getUnusedMolecules() {
+        return unusedMolecules;
+    }
+
+    @Override
+    public int[][] getUnusedMoleculesSearch() {
+        return unusedMoleculesSearch;
+    }
+
+    @Override
+    public int numberMoleculesCaptured(int[] testSet) {
+        int moleculesCapturedCount = 0;
+        for (int i = 0; i <= testSet.length - 2; ++i)
+            for (int j = i + 1; j <= testSet.length - 1; ++j)
+                if (unusedMoleculesSearch[testSet[i]][testSet[j]] == 1)
+                    ++moleculesCapturedCount;
+        return moleculesCapturedCount;
+    }
+
+    @Override
+    public void processUnusedValues() {
+        // 索引是参数值，单元格值是参数值在analyzer.getUsedParts()集合中显示的次数的计数
+        int[] unusedCounts = new int[scenario.getParameterValuesCount()];
+        for (Molecule molecule : this.getAllMolecules()) {
+            ++unusedCounts[molecule.getAtoms()[0]];
+            ++unusedCounts[molecule.getAtoms()[1]];
+        }
+
+        this.logUnusedMolecules(unusedMolecules);
+        this.unusedParameterIndexCounts = unusedCounts;
+    }
+
+    @Override
     public void setScenario(Scenario scenario) {
         this.scenario = scenario;
+    }
+
+    @Override
+    public void updateAllCounts(int[] bestTestSet) {
+        for (int i = 0; i <= scenario.getParameterSetCount() - 2; ++i) {
+            for (int j = i + 1; j <= scenario.getParameterSetCount() - 1; ++j) {
+                int v1 = bestTestSet[i]; // 新添加的值1对
+                int v2 = bestTestSet[j]; // 新添加的值2对
+
+                LOGGER.debug("调整未使用的计数 [{}][{}]", v1, v2);
+                --unusedParameterIndexCounts[v1];
+                --unusedParameterIndexCounts[v2];
+
+                LOGGER.debug("设置获取未使用的分子搜索在 [{}][{}] to 0", v1, v2);
+                this.getUnusedMoleculesSearch()[v1][v2] = 0;
+
+                // 设置未使用的分子的新列表，然后将其分配回未使用的Molecules字段 - 否则ConcurrentModificationException
+                List<Molecule> tempUnusedMolecules = new ArrayList<>();
+                tempUnusedMolecules.addAll(this.getUnusedMolecules());
+
+                for (Molecule molecule : this.getUnusedMolecules()) {
+                    int[] curr = molecule.getAtoms();
+
+                    if (curr[0] == v1 && curr[1] == v2) {
+                        LOGGER.debug("删除对 [{}, {}] 从未使用的分子列表中", v1, v2);
+                        tempUnusedMolecules.remove(molecule);
+                    }
+                }
+                this.unusedMolecules = tempUnusedMolecules;
+            }
+        }
     }
 
     /**

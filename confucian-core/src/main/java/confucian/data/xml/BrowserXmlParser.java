@@ -67,6 +67,7 @@ public class BrowserXmlParser {
      * 返回{@link IBrowserConfig}列表从{@link IMappingData}
      *
      * @param methodXml methodXml
+     *
      * @return 浏览器配置 browser config
      */
     public List<IBrowserConfig> getBrowserConfig(IMappingData methodXml) {
@@ -77,6 +78,7 @@ public class BrowserXmlParser {
      * 返回{@link IBrowserConfig}列表从smlList
      *
      * @param xmlList xmlList
+     *
      * @return 浏览器配置
      */
     private List<IBrowserConfig> getBrowserConfig(List<String> xmlList) {
@@ -101,9 +103,28 @@ public class BrowserXmlParser {
     }
 
     /**
+     * 返回键值对
+     *
+     * @param keyElement keyElement
+     *
+     * @return HashMap
+     */
+    private HashMap<String, String> getKeyValue(Element keyElement) {
+
+        HashMap<String, String> browserData = Maps.newHashMap();
+        NamedNodeMap browser = keyElement.getAttributes();
+        for (int i = 0; i < browser.getLength(); i++) {
+            Node attr = browser.item(i);
+            browserData.put(attr.getNodeName(), attr.getNodeValue());
+        }
+        return browserData;
+    }
+
+    /**
      * 读取XML
      *
      * @param xmlN xml文件名
+     *
      * @return ArrayList
      */
     @SuppressWarnings("ConstantConditions")
@@ -128,23 +149,6 @@ public class BrowserXmlParser {
 
         }
         return singleXMlList;
-    }
-
-    /**
-     * 返回键值对
-     *
-     * @param keyElement keyElement
-     * @return HashMap
-     */
-    private HashMap<String, String> getKeyValue(Element keyElement) {
-
-        HashMap<String, String> browserData = Maps.newHashMap();
-        NamedNodeMap browser = keyElement.getAttributes();
-        for (int i = 0; i < browser.getLength(); i++) {
-            Node attr = browser.item(i);
-            browserData.put(attr.getNodeName(), attr.getNodeValue());
-        }
-        return browserData;
     }
 
 }

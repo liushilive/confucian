@@ -40,17 +40,6 @@ public class PrepareDesiredCapability {
     }
 
     /**
-     * 转换属性为映射
-     */
-    private void convertToMap() {
-        Enumeration<?> keys = props.propertyNames();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            initialDesiredCap.put(key, (String) props.get(key));
-        }
-    }
-
-    /**
      * 从属性映射 {@link DesiredCapabilities}
      *
      * @return 功能
@@ -63,6 +52,17 @@ public class PrepareDesiredCapability {
             }
         }
         return desiredCapabilities;
+    }
+
+    /**
+     * 转换属性为映射
+     */
+    private void convertToMap() {
+        Enumeration<?> keys = props.propertyNames();
+        while (keys.hasMoreElements()) {
+            String key = (String) keys.nextElement();
+            initialDesiredCap.put(key, (String) props.get(key));
+        }
     }
 
     private KeyValueHolder getKey(String key) {

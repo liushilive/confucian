@@ -60,96 +60,10 @@ public class Email implements IEmail {
     }
 
     /**
-     * 设置连接协议
-     *
-     * @param protocol {@link MailProtocol}协议
-     */
-    private void connect(MailProtocol protocol) {
-        Session session;
-        switch (protocol) {
-            case POP3:
-                setPop3Config();
-                break;
-            case IMAP:
-                setImapConfig();
-                break;
-            case SMTP:
-                setSmtpConfig();
-                break;
-            default:
-                setPop3Config();
-                break;
-        }
-
-        session = Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(userName, password);
-            }
-        });
-        connectToStore(protocol.toString().toLowerCase(), session);
-    }
-
-    /**
-     * 设置Pop3
-     */
-    private void setPop3Config() {
-        props.setProperty("mail.pop3.host", host);
-        props.setProperty("mail.pop3.port", port);
-        props.setProperty("mail.store.protocol", "pop3s");
-        props.setProperty("mail.pop3.user", userName);
-        if (sslEnabled) {
-            props.setProperty("mail.pop3.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            props.setProperty("mail.pop3.socketFactory.fallback", "true");
-        }
-    }
-
-    /**
-     * 设置Imap
-     */
-    private void setImapConfig() {
-        props.setProperty("mail.imap.host", host);
-        props.setProperty("mail.imap.port", port);
-        if (sslEnabled) {
-            props.setProperty("mail.imap.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            props.setProperty("mail.imap.socketFactory.fallback", "false");
-        }
-    }
-
-    /**
-     * 设置SMTP
-     */
-    private void setSmtpConfig() {
-        props.setProperty("mail.smtp.host", host);
-        props.setProperty("mail.smtp.port", port);
-        props.setProperty("mail.smtp.auth", "true");
-        if (sslEnabled) {
-            props.setProperty("mail.smtp.starttls.enable", "true");
-        }
-    }
-
-    /**
-     * 连接到存储
-     *
-     * @param protocol 协议
-     * @param session  会话
-     */
-    private void connectToStore(String protocol, Session session) {
-        Store store;
-
-        try {
-            store = session.getStore(protocol);
-            store.connect(userName, password);
-            folder = store.getFolder(folderName);
-        } catch (MessagingException e) {
-            LOGGER.error(e);
-        }
-    }
-
-    /**
      * 从文件夹中删除邮件
      *
      * @param message 消息从文件夹中删除
+     *
      * @return boolean
      */
     public boolean deleteMessage(Message message) {
@@ -170,6 +84,7 @@ public class Email implements IEmail {
      * @param searchCat  enum
      * @param messages   消息筛选器列表
      * @param filterText :电子邮件的主题文本
+     *
      * @return 消息列表
      */
     public List<Message> filterEmailsBy(FilterEmails searchCat, List<Message> messages, String filterText) {
@@ -219,6 +134,7 @@ public class Email implements IEmail {
      *
      * @param searchCat  enum
      * @param filterText 电子邮件的主题文本
+     *
      * @return 消息列表
      */
     public List<Message> getEmailsBy(FilterEmails searchCat, String filterText) {
@@ -303,11 +219,79 @@ public class Email implements IEmail {
     }
 
     /**
+     * 设置连接协议
+     *
+     * @param protocol {@link MailProtocol}协议
+     */
+    private void connect(MailProtocol protocol) {
+        Session session;
+        switch (protocol) {
+            case POP3:
+                setPop3Config();
+                break;
+            case IMAP:
+                setImapConfig();
+                break;
+            case SMTP:
+                setSmtpConfig();
+                break;
+            default:
+                setPop3Config();
+                break;
+        }
+
+        session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(userName, password);
+            }
+        });
+        connectToStore(protocol.toString().toLowerCase(), session);
+    }
+
+    /**
+     * 连接到存储
+     *
+     * @param protocol 协议
+     * @param session  会话
+     */
+    private void connectToStore(String protocol, Session session) {
+        Store store;
+
+        try {
+            store = session.getStore(protocol);
+            store.connect(userName, password);
+            folder = store.getFolder(folderName);
+        } catch (MessagingException e) {
+            LOGGER.error(e);
+        }
+    }
+
+    /**
+     * 发件人筛选邮件
+     *
+     * @param filterText 要过滤的电子邮件地址
+     * @param messages   消息筛选器列表
+     *
+     * @return 消息列表
+     */
+    private List<Message> filterFrom(String filterText, Message[] messages) throws MessagingException {
+        List<Message> returnMessages = Lists.newArrayList();
+        for (Message msg : messages) {
+            if (msg.getFrom()[0].toString().contains(filterText)) {
+                returnMessages.add(msg);
+            }
+        }
+        return returnMessages;
+    }
+
+    /**
      * 筛选邮件 {@link FilterEmails}
      *
      * @param searchCat  {@link FilterEmails}
      * @param filterText 电子邮件地址或主题
      * @param messages   消息筛选器列表
+     *
      * @return 消息列表
      */
     private List<Message> filterFromToSubject(FilterEmails searchCat, String filterText, Message[] messages)
@@ -326,16 +310,17 @@ public class Email implements IEmail {
     }
 
     /**
-     * 发件人筛选邮件
+     * 主题筛选邮件
      *
-     * @param filterText 要过滤的电子邮件地址
+     * @param filterText 过滤器
      * @param messages   消息筛选器列表
+     *
      * @return 消息列表
      */
-    private List<Message> filterFrom(String filterText, Message[] messages) throws MessagingException {
+    private List<Message> filterSubject(String filterText, Message[] messages) throws MessagingException {
         List<Message> returnMessages = Lists.newArrayList();
         for (Message msg : messages) {
-            if (msg.getFrom()[0].toString().contains(filterText)) {
+            if (msg.getSubject().equalsIgnoreCase(filterText)) {
                 returnMessages.add(msg);
             }
         }
@@ -347,6 +332,7 @@ public class Email implements IEmail {
      *
      * @param filterText 要过滤的电子邮件地址
      * @param messages   消息筛选器列表
+     *
      * @return 消息列表
      */
     private List<Message> filterTo(String filterText, Message[] messages) throws MessagingException {
@@ -356,23 +342,6 @@ public class Email implements IEmail {
                 if (address.toString().contains(filterText)) {
                     returnMessages.add(msg);
                 }
-            }
-        }
-        return returnMessages;
-    }
-
-    /**
-     * 主题筛选邮件
-     *
-     * @param filterText 过滤器
-     * @param messages   消息筛选器列表
-     * @return 消息列表
-     */
-    private List<Message> filterSubject(String filterText, Message[] messages) throws MessagingException {
-        List<Message> returnMessages = Lists.newArrayList();
-        for (Message msg : messages) {
-            if (msg.getSubject().equalsIgnoreCase(filterText)) {
-                returnMessages.add(msg);
             }
         }
         return returnMessages;
@@ -393,6 +362,44 @@ public class Email implements IEmail {
             e.printStackTrace();
         }
         return mailCount;
+    }
+
+    /**
+     * 设置Imap
+     */
+    private void setImapConfig() {
+        props.setProperty("mail.imap.host", host);
+        props.setProperty("mail.imap.port", port);
+        if (sslEnabled) {
+            props.setProperty("mail.imap.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            props.setProperty("mail.imap.socketFactory.fallback", "false");
+        }
+    }
+
+    /**
+     * 设置Pop3
+     */
+    private void setPop3Config() {
+        props.setProperty("mail.pop3.host", host);
+        props.setProperty("mail.pop3.port", port);
+        props.setProperty("mail.store.protocol", "pop3s");
+        props.setProperty("mail.pop3.user", userName);
+        if (sslEnabled) {
+            props.setProperty("mail.pop3.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            props.setProperty("mail.pop3.socketFactory.fallback", "true");
+        }
+    }
+
+    /**
+     * 设置SMTP
+     */
+    private void setSmtpConfig() {
+        props.setProperty("mail.smtp.host", host);
+        props.setProperty("mail.smtp.port", port);
+        props.setProperty("mail.smtp.auth", "true");
+        if (sslEnabled) {
+            props.setProperty("mail.smtp.starttls.enable", "true");
+        }
     }
 
     /**
@@ -420,6 +427,7 @@ public class Email implements IEmail {
          * 设置IP地址
          *
          * @param host 设置IP地址
+         *
          * @return 设置IP地址 host
          */
         public Builder setHost(String host) {
@@ -431,6 +439,7 @@ public class Email implements IEmail {
          * 设置密码
          *
          * @param password 设置密码
+         *
          * @return 设置密码 password
          */
         public Builder setPassword(String password) {
@@ -442,6 +451,7 @@ public class Email implements IEmail {
          * 设置端口
          *
          * @param portNo 设置端口
+         *
          * @return 设置端口 port
          */
         public Builder setPort(String portNo) {
@@ -453,6 +463,7 @@ public class Email implements IEmail {
          * 设置协议
          *
          * @param protocol 协议
+         *
          * @return 协议 protocol
          */
         public Builder setProtocol(MailProtocol protocol) {
@@ -464,6 +475,7 @@ public class Email implements IEmail {
          * 设置ssl
          *
          * @param sslEnabled 启用ssl
+         *
          * @return ssl ssl
          */
         public Builder setSSL(boolean sslEnabled) {
@@ -475,6 +487,7 @@ public class Email implements IEmail {
          * 设置用户名
          *
          * @param userName 用户名
+         *
          * @return 用户名 user name
          */
         public Builder setUserName(String userName) {

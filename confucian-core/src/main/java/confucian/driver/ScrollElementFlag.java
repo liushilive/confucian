@@ -19,8 +19,7 @@ class ScrollElementFlag extends AbstractWebDriverEventListener {
      */
     @Override
     public void afterFindBy(By by, WebElement element, WebDriver driver) {
-        if (driver != null)
-            DriverUtility.scrollToElement(element);
+        DriverUtility.scrollToElement(element);
     }
 
     /**
@@ -31,7 +30,6 @@ class ScrollElementFlag extends AbstractWebDriverEventListener {
      */
     @Override
     public void beforeClickOn(WebElement element, WebDriver driver) {
-        if (driver != null)
-            DriverUtility.scrollToElement(element);
+        DriverUtility.scrollToElement(element);
     }
 }

@@ -25,45 +25,6 @@ import static confucian.common.Utils.getId;
 public class TestInterceptor extends TestListenerAdapter {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public void onTestStart(ITestResult arg0) {
-        LOGGER.info(
-                "****************************************************************************************************");
-        LOGGER.info("启动测试用例::" + arg0.getMethod().getDescription() + " (" + arg0.getMethod().getId() + ") " + " (" +
-                Utils.getId(arg0) + ") ");
-        LOGGER.info("启动时间::" + getTimeReport());
-    }
-
-    public void onTestSuccess(ITestResult arg0) {
-        LOGGER.info("结束时间::" + getTimeReport());
-        long ms = arg0.getEndMillis() - arg0.getStartMillis();
-        LOGGER.info("执行时间:: " + ms / 1000 + "." + ms % 1000 + " 秒");
-        LOGGER.info("完成的测试用例:: " + arg0.getMethod().getDescription() + " (" + arg0.getMethod().getId() + ") " +
-                " => 状态：通过" + " (" + Utils.getId(arg0) + ") ");
-        LOGGER.info(
-                "****************************************************************************************************");
-    }
-
-    public void onTestFailure(ITestResult arg0) {
-        LOGGER.info("结束时间::" + getTimeReport());
-        long ms = arg0.getEndMillis() - arg0.getStartMillis();
-        LOGGER.info("执行时间:: " + ms / 1000 + "." + ms % 1000 + " 秒");
-        LOGGER.info("完成的测试用例:: " + arg0.getMethod().getDescription() + " (" + arg0.getMethod().getId() + ") " +
-                " => 状态：失败" + " (" + Utils.getId(arg0) + ") ");
-        LOGGER.info(
-                "****************************************************************************************************");
-    }
-
-    public void onTestSkipped(ITestResult result) {
-        LOGGER.info("跳过测试用例：" + result.getMethod().getDescription() + " (" + result.getMethod().getId() + ") " + " (" +
-                Utils.getId(result) + ") ");
-        LOGGER.info(
-                "****************************************************************************************************");
-    }
-
-    public void onStart(ITestContext context) {
-        LOGGER.info("启动套件::" + context.getSuite().getName());
-    }
-
     public void onFinish(ITestContext context) {
         List<ITestResult> testsToBeRemoved = Lists.newArrayList();
         Set<Integer> passedTest = newHashSet();
@@ -84,6 +45,45 @@ public class TestInterceptor extends TestListenerAdapter {
 
         // 更新上下文
         context.getFailedTests().getAllResults().removeIf(testsToBeRemoved::contains);
+    }
+
+    public void onStart(ITestContext context) {
+        LOGGER.info("启动套件::" + context.getSuite().getName());
+    }
+
+    public void onTestFailure(ITestResult arg0) {
+        LOGGER.info("结束时间::" + getTimeReport());
+        long ms = arg0.getEndMillis() - arg0.getStartMillis();
+        LOGGER.info("执行时间:: " + ms / 1000 + "." + ms % 1000 + " 秒");
+        LOGGER.info("完成的测试用例:: " + arg0.getMethod().getDescription() + " (" + arg0.getMethod().getId() + ") " +
+                " => 状态：失败" + " (" + Utils.getId(arg0) + ") ");
+        LOGGER.info(
+                "****************************************************************************************************");
+    }
+
+    public void onTestSkipped(ITestResult result) {
+        LOGGER.info("跳过测试用例：" + result.getMethod().getDescription() + " (" + result.getMethod().getId() + ") " + " (" +
+                Utils.getId(result) + ") ");
+        LOGGER.info(
+                "****************************************************************************************************");
+    }
+
+    public void onTestStart(ITestResult arg0) {
+        LOGGER.info(
+                "****************************************************************************************************");
+        LOGGER.info("启动测试用例::" + arg0.getMethod().getDescription() + " (" + arg0.getMethod().getId() + ") " + " (" +
+                Utils.getId(arg0) + ") ");
+        LOGGER.info("启动时间::" + getTimeReport());
+    }
+
+    public void onTestSuccess(ITestResult arg0) {
+        LOGGER.info("结束时间::" + getTimeReport());
+        long ms = arg0.getEndMillis() - arg0.getStartMillis();
+        LOGGER.info("执行时间:: " + ms / 1000 + "." + ms % 1000 + " 秒");
+        LOGGER.info("完成的测试用例:: " + arg0.getMethod().getDescription() + " (" + arg0.getMethod().getId() + ") " +
+                " => 状态：通过" + " (" + Utils.getId(arg0) + ") ");
+        LOGGER.info(
+                "****************************************************************************************************");
     }
 
     /**

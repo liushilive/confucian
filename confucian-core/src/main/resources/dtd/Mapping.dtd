@@ -1,0 +1,16 @@
+<!DOCTYPE Mapping [ <!ELEMENT Mapping (Package+)>
+        <!ATTLIST Package name CDATA #REQUIRED>
+        <!ATTLIST Package testData CDATA #IMPLIED>
+        <!ATTLIST Package clientEnvironment CDATA #IMPLIED>
+        <!ATTLIST Package runStrategy (Full|Optimal) #IMPLIED>
+        <!ELEMENT Package (Class*)>
+        <!ATTLIST Class name CDATA #REQUIRED>
+        <!ATTLIST Class clientEnvironment CDATA #IMPLIED>
+        <!ATTLIST Class testData CDATA #IMPLIED>
+        <!ATTLIST Class runStrategy (Full|Optimal) #IMPLIED>
+        <!ELEMENT MethodName (#PCDATA)>
+        <!ELEMENT Class (MethodName*)>
+        <!ATTLIST MethodName name CDATA #REQUIRED>
+        <!ATTLIST MethodName testData CDATA #IMPLIED>
+        <!ATTLIST MethodName clientEnvironment CDATA #IMPLIED>
+        <!ATTLIST MethodName runStrategy (Full|Optimal) #IMPLIED>]>

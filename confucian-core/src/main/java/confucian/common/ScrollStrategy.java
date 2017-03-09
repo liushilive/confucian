@@ -7,13 +7,16 @@ public enum ScrollStrategy {
     /**
      * 水平滚动
      */
-    HORIZONTALLY, /**
+    HORIZONTALLY,
+    /**
      * 垂直滚动
      */
-    VERTICALLY, /**
+    VERTICALLY,
+    /**
      * 两个方向滚动
      */
-    BOTH_DIRECTIONS, /**
+    BOTH_DIRECTIONS,
+    /**
      * 不滚动
      */
     DISABLE

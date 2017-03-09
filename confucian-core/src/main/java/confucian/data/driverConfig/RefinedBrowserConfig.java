@@ -51,26 +51,12 @@ public class RefinedBrowserConfig {
     }
 
     /**
-     * 配置框架属性
-     *
-     * @param standByLookUpFileName 查找文件名
-     */
-    private void setFrameworkProperties(String standByLookUpFileName) {
-        String pathOfFile = Utils.getResources(standByLookUpFileName);
-        if (null == pathOfFile) {
-            isFrameworkProperties = false;
-        } else {
-            isFrameworkProperties = true;
-            frameworkPropData = new PropertyValueMin(Utils.getResources(standByLookUpFileName));
-        }
-    }
-
-    /**
      * 获取字符串，优先级：
      * default < Framework < ClientEnv < CommandLine
      *
      * @param key          key
      * @param defaultValue 默认值
+     *
      * @return string string
      */
     public String get(String key, String defaultValue) {
@@ -82,59 +68,23 @@ public class RefinedBrowserConfig {
     }
 
     /**
-     * 从框架配置文件获取键值对
+     * 从客户端配置获取浏览器配置
      *
-     * @param key   key
-     * @param value value
-     * @return key-value
+     * @return 浏览器配置
      */
-    private String getFromFrameworkProp(String key, String value) {
-        if (isFrameworkProperties) {
-            String tempValue = frameworkPropData.getValue(key);
-            if (isNotBlank(tempValue)) {
-                return tempValue;
-            }
-        }
-        return value;
+    private DesiredCapabilities getDCClient() {
+        PrepareDesiredCapability clientBrowserCapability = new PrepareDesiredCapability(clientBrowserData);
+        return clientBrowserCapability.get();
     }
 
     /**
-     * 判断是否为空
+     * 从命令行获取浏览器配置
      *
-     * @param value value
-     * @return bool
+     * @return 浏览器配置
      */
-    private boolean isNotBlank(String value) {
-        return StringUtils.isNotBlank(value);
-    }
-
-    /**
-     * 从客户端环境获取键值对
-     *
-     * @param key   key
-     * @param value value
-     * @return key-value
-     */
-    private String getFromClientEnv(String key, String value) {
-        String tempValue = clientBrowserData.get(key.toLowerCase().trim());
-        if (isNotBlank(tempValue)) {
-            return tempValue;
-        }
-        return value;
-    }
-
-    /**
-     * 从命令行获取键值对
-     *
-     * @param key   key
-     * @param value value
-     * @return key-value
-     */
-    private String getFromJvmArgs(String key, String value) {
-        String tempValue = System.getProperty(key);
-        return isNotBlank(tempValue) ?
-                tempValue :
-                value;
+    private DesiredCapabilities getDCJvm() {
+        PrepareDesiredCapability systemCapability = new PrepareDesiredCapability(System.getProperties());
+        return systemCapability.get();
     }
 
     /**
@@ -173,23 +123,78 @@ public class RefinedBrowserConfig {
     }
 
     /**
-     * 从命令行获取浏览器配置
+     * 从客户端环境获取键值对
      *
-     * @return 浏览器配置
+     * @param key   key
+     * @param value value
+     *
+     * @return key-value
      */
-    private DesiredCapabilities getDCJvm() {
-        PrepareDesiredCapability systemCapability = new PrepareDesiredCapability(System.getProperties());
-        return systemCapability.get();
+    private String getFromClientEnv(String key, String value) {
+        String tempValue = clientBrowserData.get(key.toLowerCase().trim());
+        if (isNotBlank(tempValue)) {
+            return tempValue;
+        }
+        return value;
     }
 
     /**
-     * 从客户端配置获取浏览器配置
+     * 从框架配置文件获取键值对
      *
-     * @return 浏览器配置
+     * @param key   key
+     * @param value value
+     *
+     * @return key-value
      */
-    private DesiredCapabilities getDCClient() {
-        PrepareDesiredCapability clientBrowserCapability = new PrepareDesiredCapability(clientBrowserData);
-        return clientBrowserCapability.get();
+    private String getFromFrameworkProp(String key, String value) {
+        if (isFrameworkProperties) {
+            String tempValue = frameworkPropData.getValue(key);
+            if (isNotBlank(tempValue)) {
+                return tempValue;
+            }
+        }
+        return value;
+    }
+
+    /**
+     * 从命令行获取键值对
+     *
+     * @param key   key
+     * @param value value
+     *
+     * @return key-value
+     */
+    private String getFromJvmArgs(String key, String value) {
+        String tempValue = System.getProperty(key);
+        return isNotBlank(tempValue) ?
+                tempValue :
+                value;
+    }
+
+    /**
+     * 判断是否为空
+     *
+     * @param value value
+     *
+     * @return bool
+     */
+    private boolean isNotBlank(String value) {
+        return StringUtils.isNotBlank(value);
+    }
+
+    /**
+     * 配置框架属性
+     *
+     * @param standByLookUpFileName 查找文件名
+     */
+    private void setFrameworkProperties(String standByLookUpFileName) {
+        String pathOfFile = Utils.getResources(standByLookUpFileName);
+        if (null == pathOfFile) {
+            isFrameworkProperties = false;
+        } else {
+            isFrameworkProperties = true;
+            frameworkPropData = new PropertyValueMin(pathOfFile);
+        }
     }
 
 }

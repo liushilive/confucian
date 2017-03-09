@@ -33,6 +33,43 @@ public class TestDataSet {
     }
 
     /**
+     * 测试集
+     *
+     * @return the test sets
+     */
+    public List<Map<String, Object>> getTestSets() {
+        List<int[]> testSetIndexes = getRawTestSets();
+        List<Map<String, Object>> completeDataSet = new ArrayList<>();
+        for (int[] testSetIndex : testSetIndexes) {
+            Map<String, Object> singleTestSet = new LinkedHashMap<>();
+            for (int j = 0; j < scenario.getParameterSetCount(); j++) {
+                Object value = scenario.getParameterValues().get(testSetIndex[j]);
+                singleTestSet.put(scenario.getParameterSet(scenario.getParameterPositions()[testSetIndex[j]]).getName(),
+                        value);
+            }
+            completeDataSet.add(singleTestSet);
+        }
+        return completeDataSet;
+    }
+
+    /**
+     * 日志输出
+     */
+    public void logResults() {
+        logFullCombinationCount();
+        LOGGER.info("结果测试集: ");
+        for (int i = 0; i < testSets.size(); i++) {
+            StringBuffer outputStr = new StringBuffer(i + 1);
+            int[] curr = testSets.get(i);
+            for (int j = 0; j < scenario.getParameterSetCount(); j++) {
+                outputStr.append(scenario.getParameterSets().get(j).getName()).append(":")
+                        .append(scenario.getParameterValues().get(curr[j])).append(" ");
+            }
+            LOGGER.info(outputStr);
+        }
+    }
+
+    /**
      * 构建测试用例。
      */
     void buildTestCases() {
@@ -59,6 +96,76 @@ public class TestDataSet {
             testSets.add(bestTestSet);
             inventory.updateAllCounts(bestTestSet);
         }
+    }
+
+    /**
+     * 确定最佳候选集合int []
+     *
+     * @param candidateSets the candidate sets
+     *
+     * @return the int [ ]
+     */
+    private int[] determineBestCandidateSet(int[][] candidateSets) {
+        // 遍历candidateSets来确定最佳人选
+        r.setSeed(r.nextLong());
+        int indexOfBestCandidate = r.nextInt(candidateSets.length);
+        // 选择一个随机指数作为最佳的
+        int mostPairsCaptured = inventory.numberMoleculesCaptured(candidateSets[indexOfBestCandidate]);
+
+        // 确定使用“最佳”的候选
+        for (int i = 0; i < candidateSets.length; ++i) {
+            int pairsCaptured = inventory.numberMoleculesCaptured(candidateSets[i]);
+            if (pairsCaptured > mostPairsCaptured) {
+                mostPairsCaptured = pairsCaptured;
+                indexOfBestCandidate = i;
+            }
+            LOGGER.debug("候选{}捕获{}", i, mostPairsCaptured);
+        }
+        LOGGER.debug("候选{}是最佳的", indexOfBestCandidate);
+
+        return candidateSets[indexOfBestCandidate];
+    }
+
+    /**
+     * 获取参数排序int []
+     *
+     * @param firstPos  the first pos
+     * @param secondPos the second pos
+     *
+     * @return the int [ ]
+     */
+    private int[] getParameterOrdering(int firstPos, int secondPos) {
+        // 生成一个随机的顺序来填补位置参数
+        int[] ordering = new int[scenario.getLegalValues().length];
+        for (int i = 0; i < scenario.getLegalValues().length; i++) {
+            // 最初都是按顺序
+            ordering[i] = i;
+        }
+
+        ordering[0] = firstPos;
+        ordering[firstPos] = 0;
+
+        int t = ordering[1];
+        ordering[1] = secondPos;
+        ordering[secondPos] = t;
+
+        for (int i = 2; i < ordering.length; i++) {
+            int j = r.nextInt(ordering.length - i) + i;
+            int temp = ordering[j];
+            ordering[j] = ordering[i];
+            ordering[i] = temp;
+        }
+        LOGGER.debug("顺序: {}", Arrays.toString(ordering));
+        return ordering;
+    }
+
+    /**
+     * 原始的测试集
+     *
+     * @return the raw test sets
+     */
+    private List<int[]> getRawTestSets() {
+        return testSets;
     }
 
     /**
@@ -113,73 +220,6 @@ public class TestDataSet {
         return testSet;
     }
 
-    /**
-     * 获取参数排序int []
-     *
-     * @param firstPos  the first pos
-     * @param secondPos the second pos
-     * @return the int [ ]
-     */
-    private int[] getParameterOrdering(int firstPos, int secondPos) {
-        // 生成一个随机的顺序来填补位置参数
-        int[] ordering = new int[scenario.getLegalValues().length];
-        for (int i = 0; i < scenario.getLegalValues().length; i++) {
-            // 最初都是按顺序
-            ordering[i] = i;
-        }
-
-        ordering[0] = firstPos;
-        ordering[firstPos] = 0;
-
-        int t = ordering[1];
-        ordering[1] = secondPos;
-        ordering[secondPos] = t;
-
-        for (int i = 2; i < ordering.length; i++) {
-            int j = r.nextInt(ordering.length - i) + i;
-            int temp = ordering[j];
-            ordering[j] = ordering[i];
-            ordering[i] = temp;
-        }
-        LOGGER.debug("顺序: {}", Arrays.toString(ordering));
-        return ordering;
-    }
-
-    private void logPossibleValues(int paramSetIndex, int[] possibleValues) {
-        LOGGER.debug("可能的值是 ");
-        for (int z = 0; z < possibleValues.length; z++) {
-            LOGGER.debug(String.format("%d->%d: %s", paramSetIndex, possibleValues[z],
-                    scenario.getParameterValues().get(scenario.getLegalValues()[paramSetIndex][z])));
-        }
-    }
-
-    /**
-     * 确定最佳候选集合int []
-     *
-     * @param candidateSets the candidate sets
-     * @return the int [ ]
-     */
-    private int[] determineBestCandidateSet(int[][] candidateSets) {
-        // 遍历candidateSets来确定最佳人选
-        r.setSeed(r.nextLong());
-        int indexOfBestCandidate = r.nextInt(candidateSets.length);
-        // 选择一个随机指数作为最佳的
-        int mostPairsCaptured = inventory.numberMoleculesCaptured(candidateSets[indexOfBestCandidate]);
-
-        // 确定使用“最佳”的候选
-        for (int i = 0; i < candidateSets.length; ++i) {
-            int pairsCaptured = inventory.numberMoleculesCaptured(candidateSets[i]);
-            if (pairsCaptured > mostPairsCaptured) {
-                mostPairsCaptured = pairsCaptured;
-                indexOfBestCandidate = i;
-            }
-            LOGGER.debug("候选{}捕获{}", i, mostPairsCaptured);
-        }
-        LOGGER.debug("候选{}是最佳的", indexOfBestCandidate);
-
-        return candidateSets[indexOfBestCandidate];
-    }
-
     private void logCandidateTestSet(int[] testSet) {
         LOGGER.debug("将候选测试分子添加到候选集数组： ");
         LOGGER.debug("候选测试集（索引）： {}", Arrays.toString(testSet));
@@ -198,56 +238,18 @@ public class TestDataSet {
     }
 
     /**
-     * 测试集
-     *
-     * @return the test sets
-     */
-    public List<Map<String, Object>> getTestSets() {
-        List<int[]> testSetIndexes = getRawTestSets();
-        List<Map<String, Object>> completeDataSet = new ArrayList<>();
-        for (int[] testSetIndex : testSetIndexes) {
-            Map<String, Object> singleTestSet = new LinkedHashMap<>();
-            for (int j = 0; j < scenario.getParameterSetCount(); j++) {
-                Object value = scenario.getParameterValues().get(testSetIndex[j]);
-                singleTestSet.put(scenario.getParameterSet(scenario.getParameterPositions()[testSetIndex[j]]).getName(),
-                        value);
-            }
-            completeDataSet.add(singleTestSet);
-        }
-        return completeDataSet;
-    }
-
-    /**
-     * 原始的测试集
-     *
-     * @return the raw test sets
-     */
-    private List<int[]> getRawTestSets() {
-        return testSets;
-    }
-
-    /**
-     * 日志输出
-     */
-    public void logResults() {
-        logFullCombinationCount();
-        LOGGER.info("结果测试集: ");
-        for (int i = 0; i < testSets.size(); i++) {
-            StringBuffer outputStr = new StringBuffer(i + 1);
-            int[] curr = testSets.get(i);
-            for (int j = 0; j < scenario.getParameterSetCount(); j++) {
-                outputStr.append(scenario.getParameterSets().get(j).getName()).append(":")
-                        .append(scenario.getParameterValues().get(curr[j])).append(" ");
-            }
-            LOGGER.info(outputStr);
-        }
-    }
-
-    /**
      * 记录完全组合计数
      */
     private void logFullCombinationCount() {
         LOGGER.info("所有可能的组合: {}", inventory.getFullCombinationCount());
         LOGGER.info("最佳组合: {}", this.getRawTestSets().size());
+    }
+
+    private void logPossibleValues(int paramSetIndex, int[] possibleValues) {
+        LOGGER.debug("可能的值是 ");
+        for (int z = 0; z < possibleValues.length; z++) {
+            LOGGER.debug(String.format("%d->%d: %s", paramSetIndex, possibleValues[z],
+                    scenario.getParameterValues().get(scenario.getLegalValues()[paramSetIndex][z])));
+        }
     }
 }

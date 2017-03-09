@@ -68,6 +68,7 @@ public class XmlApplicationData {
      *
      * @param xmlName     xml名称
      * @param environment 环境
+     *
      * @return the list
      */
     public List<IProperty> getAppData(String xmlName, String environment) {
@@ -79,6 +80,7 @@ public class XmlApplicationData {
      * 在自动化中使用键值对
      *
      * @param xmlName xml名称
+     *
      * @return 应用数据 app data
      */
     public List<IProperty> getAppData(String xmlName) {
@@ -199,6 +201,7 @@ public class XmlApplicationData {
      * 返回所有环境数据对象的列表
      *
      * @param xmlName xmlName
+     *
      * @return List<Element>
      */
     private List<Element> getDataObjects(String xmlName) {

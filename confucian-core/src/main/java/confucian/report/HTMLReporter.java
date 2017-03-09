@@ -94,6 +94,33 @@ public class HTMLReporter extends AbstractReporter {
         }
     }
 
+    /**
+     * Reads the CSS and JavaScript files from the JAR file and writes them to
+     * the output directory.
+     *
+     * @param outputDirectory Where to put the resources.
+     *
+     * @throws IOException If the resources can't be read or written.
+     */
+    private void copyResources(File outputDirectory) throws IOException {
+        copyClasspathResource(outputDirectory, "report.css", "report.css");
+        copyClasspathResource(outputDirectory, "report.js", "report.js");
+        // If there is a custom stylesheet, copy that.
+        File customStylesheet = META.getStylesheetPath();
+
+        if (customStylesheet != null) {
+            if (customStylesheet.exists()) {
+                copyFile(outputDirectory, customStylesheet, CUSTOM_STYLE_FILE);
+            } else {
+                // If not found, try to read the file as a resource on the classpath
+                // useful when reportng is called by a jarred up library
+                InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(customStylesheet.getPath());
+                if (stream != null) {
+                    copyStream(outputDirectory, stream, CUSTOM_STYLE_FILE);
+                }
+            }
+        }
+    }
 
     /**
      * Create the index file that sets up the frameset.
@@ -105,6 +132,38 @@ public class HTMLReporter extends AbstractReporter {
         generateFile(new File(outputDirectory, INDEX_FILE), INDEX_FILE + TEMPLATE_EXTENSION, context);
     }
 
+    /**
+     * Generate a groups list for each suite.
+     *
+     * @param outputDirectory The target directory for the generated file(s).
+     */
+    private void createGroups(List<ISuite> suites, File outputDirectory) throws Exception {
+        int index = 1;
+        for (ISuite suite : suites) {
+            SortedMap<String, SortedSet<ITestNGMethod>> groups = sortGroups(suite.getMethodsByGroups());
+            if (!groups.isEmpty()) {
+                VelocityContext context = createContext();
+                context.put(SUITE_KEY, suite);
+                context.put(GROUPS_KEY, groups);
+                String fileName = String.format("suite%d_%s", index, GROUPS_FILE);
+                generateFile(new File(outputDirectory, fileName), GROUPS_FILE + TEMPLATE_EXTENSION, context);
+            }
+            ++index;
+        }
+    }
+
+    /**
+     * Generate a groups list for each suite.
+     *
+     * @param outputDirectory The target directory for the generated file(s).
+     */
+    private void createLog(File outputDirectory, boolean onlyFailures) throws Exception {
+        if (!Reporter.getOutput().isEmpty()) {
+            VelocityContext context = createContext();
+            context.put(ONLY_FAILURES_KEY, onlyFailures);
+            generateFile(new File(outputDirectory, OUTPUT_FILE), OUTPUT_FILE + TEMPLATE_EXTENSION, context);
+        }
+    }
 
     private void createOverview(List<ISuite> suites, File outputDirectory, boolean isIndex, boolean onlyFailures)
             throws Exception {
@@ -115,20 +174,6 @@ public class HTMLReporter extends AbstractReporter {
                 INDEX_FILE :
                 OVERVIEW_FILE), OVERVIEW_FILE + TEMPLATE_EXTENSION, context);
     }
-
-
-    /**
-     * Create the navigation frame.
-     *
-     * @param outputDirectory The target directory for the generated file(s).
-     */
-    private void createSuiteList(List<ISuite> suites, File outputDirectory, boolean onlyFailures) throws Exception {
-        VelocityContext context = createContext();
-        context.put(SUITES_KEY, suites);
-        context.put(ONLY_FAILURES_KEY, onlyFailures);
-        generateFile(new File(outputDirectory, SUITES_FILE), SUITES_FILE + TEMPLATE_EXTENSION, context);
-    }
-
 
     /**
      * Generate a results file for each test in each suite.
@@ -160,6 +205,17 @@ public class HTMLReporter extends AbstractReporter {
         }
     }
 
+    /**
+     * Create the navigation frame.
+     *
+     * @param outputDirectory The target directory for the generated file(s).
+     */
+    private void createSuiteList(List<ISuite> suites, File outputDirectory, boolean onlyFailures) throws Exception {
+        VelocityContext context = createContext();
+        context.put(SUITES_KEY, suites);
+        context.put(ONLY_FAILURES_KEY, onlyFailures);
+        generateFile(new File(outputDirectory, SUITES_FILE), SUITES_FILE + TEMPLATE_EXTENSION, context);
+    }
 
     /**
      * Group test methods by class and sort alphabetically.
@@ -177,42 +233,6 @@ public class HTMLReporter extends AbstractReporter {
         return sortedResults;
     }
 
-
-    /**
-     * Generate a groups list for each suite.
-     *
-     * @param outputDirectory The target directory for the generated file(s).
-     */
-    private void createGroups(List<ISuite> suites, File outputDirectory) throws Exception {
-        int index = 1;
-        for (ISuite suite : suites) {
-            SortedMap<String, SortedSet<ITestNGMethod>> groups = sortGroups(suite.getMethodsByGroups());
-            if (!groups.isEmpty()) {
-                VelocityContext context = createContext();
-                context.put(SUITE_KEY, suite);
-                context.put(GROUPS_KEY, groups);
-                String fileName = String.format("suite%d_%s", index, GROUPS_FILE);
-                generateFile(new File(outputDirectory, fileName), GROUPS_FILE + TEMPLATE_EXTENSION, context);
-            }
-            ++index;
-        }
-    }
-
-
-    /**
-     * Generate a groups list for each suite.
-     *
-     * @param outputDirectory The target directory for the generated file(s).
-     */
-    private void createLog(File outputDirectory, boolean onlyFailures) throws Exception {
-        if (!Reporter.getOutput().isEmpty()) {
-            VelocityContext context = createContext();
-            context.put(ONLY_FAILURES_KEY, onlyFailures);
-            generateFile(new File(outputDirectory, OUTPUT_FILE), OUTPUT_FILE + TEMPLATE_EXTENSION, context);
-        }
-    }
-
-
     /**
      * Sorts groups alphabetically and also sorts methods within groups alphabetically
      * (class name first, then method name).  Also eliminates duplicate entries.
@@ -225,33 +245,5 @@ public class HTMLReporter extends AbstractReporter {
             sortedGroups.put(entry.getKey(), methods);
         }
         return sortedGroups;
-    }
-
-
-    /**
-     * Reads the CSS and JavaScript files from the JAR file and writes them to
-     * the output directory.
-     *
-     * @param outputDirectory Where to put the resources.
-     * @throws IOException If the resources can't be read or written.
-     */
-    private void copyResources(File outputDirectory) throws IOException {
-        copyClasspathResource(outputDirectory, "report.css", "report.css");
-        copyClasspathResource(outputDirectory, "report.js", "report.js");
-        // If there is a custom stylesheet, copy that.
-        File customStylesheet = META.getStylesheetPath();
-
-        if (customStylesheet != null) {
-            if (customStylesheet.exists()) {
-                copyFile(outputDirectory, customStylesheet, CUSTOM_STYLE_FILE);
-            } else {
-                // If not found, try to read the file as a resource on the classpath
-                // useful when reportng is called by a jarred up library
-                InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(customStylesheet.getPath());
-                if (stream != null) {
-                    copyStream(outputDirectory, stream, CUSTOM_STYLE_FILE);
-                }
-            }
-        }
     }
 }
