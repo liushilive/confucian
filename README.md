@@ -23,12 +23,9 @@ Data
      * XML数据源,带浏览器配置 XmlDataBrowser
      * 没有数据源,带浏览器配置 NoSourceBrowser
      * 无效的数据源 Invalid
-执行
--
-    mvn 命令执行 - target/surefire-reports/html/index.html
  报表
  -
-    TestNg - test-output/html/index.html
+    test-output/html/index.html
 
 1、PageObject
 -
